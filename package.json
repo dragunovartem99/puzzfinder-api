@@ -1,0 +1,29 @@
+{
+	"name": "puzzfinder-api",
+	"version": "0.0.0",
+	"description": "",
+	"keywords": [],
+	"homepage": "https://github.com/dragunovartem99/puzzfinder-api#readme",
+	"bugs": {
+		"url": "https://github.com/dragunovartem99/puzzfinder-api/issues",
+		"email": "dragunovartem99@gmail.com"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/dragunovartem99/puzzfinder-api.git"
+	},
+	"license": "MIT",
+	"author": {
+		"name": "Artem Dragunov",
+		"email": "dragunovartem99@gmail.com"
+	},
+	"main": "index.js",
+	"scripts": {
+		"format": "prettier . --write",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"prettier": "@dragunovartem99/prettier-config",
+	"devDependencies": {
+		"@dragunovartem99/prettier-config": "^1.2.0"
+	}
+}
