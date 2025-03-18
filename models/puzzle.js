@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const puzzleSchema = new mongoose.Schema({
-	puzzleId: String,
+	_id: String,
 	fen: String,
 	moves: String,
 	rating: Number,
