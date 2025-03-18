@@ -17,16 +17,17 @@
 		"name": "Artem Dragunov",
 		"email": "dragunovartem99@gmail.com"
 	},
+	"type": "module",
 	"main": "index.js",
 	"scripts": {
 		"format": "prettier . --write",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"prettier": "@dragunovartem99/prettier-config",
-	"devDependencies": {
-		"@dragunovartem99/prettier-config": "^1.2.0"
-	},
 	"dependencies": {
 		"mongoose": "^8.12.1"
+	},
+	"devDependencies": {
+		"@dragunovartem99/prettier-config": "^1.2.0"
 	}
 }
