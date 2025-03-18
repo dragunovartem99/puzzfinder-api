@@ -1,9 +1,18 @@
+import express from "express";
 import { connect } from "mongoose";
 import { PuzzleModel } from "./model.js";
+import { translateQuery } from "./utils/translateQuery.js";
 
-main().catch((err) => console.log(err));
+const app = express();
+const port = 3000;
 
-async function main() {
-	await connect("mongodb://127.0.0.1:27017/puzzfinder");
-	PuzzleModel.find({ rating: { $gt: 3300 } }).then(console.log);
-}
+connect("mongodb://127.0.0.1:27017/puzzfinder").catch((err) => console.log(err));
+
+app.get("/puzzles", async (req, res) => {
+	const puzzles = await PuzzleModel.find(translateQuery(req.query));
+	res.json(puzzles);
+});
+
+app.listen(port, () => {
+	console.log(`Example app listening on port ${port}`);
+});

@@ -25,6 +25,7 @@
 	},
 	"prettier": "@dragunovartem99/prettier-config",
 	"dependencies": {
+		"express": "^4.21.2",
 		"mongoose": "^8.12.1"
 	},
 	"devDependencies": {
