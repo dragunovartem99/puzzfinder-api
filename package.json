@@ -25,5 +25,8 @@
 	"prettier": "@dragunovartem99/prettier-config",
 	"devDependencies": {
 		"@dragunovartem99/prettier-config": "^1.2.0"
+	},
+	"dependencies": {
+		"mongoose": "^8.12.1"
 	}
 }
