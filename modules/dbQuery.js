@@ -3,8 +3,8 @@ export function toDbQuery(query) {
 		Rating: {}
 	};
 
-	query.minRating && (dbQuery.Rating["$gte"] = query.minRating);
-	query.maxRating && (dbQuery.Rating["$lte"] = query.maxRating);
+	query.minRating && (dbQuery.Rating["$gte"] = parseInt(query.minRating));
+	query.maxRating && (dbQuery.Rating["$lte"] = parseInt(query.maxRating));
 
 	return dbQuery;
 }
