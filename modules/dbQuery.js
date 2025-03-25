@@ -1,6 +1,6 @@
 export function toDbQuery(query) {
-	const dbQuery = { 
-		Rating: {}
+	const dbQuery = {
+		Rating: {},
 	};
 
 	query.minRating && (dbQuery.Rating["$gte"] = parseInt(query.minRating));
