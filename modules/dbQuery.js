@@ -1,4 +1,4 @@
-export function translateQuery(query) {
+export function toDbQuery(query) {
 	const dbQuery = { 
 		Rating: {}
 	};
