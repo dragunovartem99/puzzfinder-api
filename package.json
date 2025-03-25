@@ -1,6 +1,6 @@
 {
 	"name": "puzzfinder-api",
-	"version": "0.0.0",
+	"private": true,
 	"description": "",
 	"keywords": [],
 	"homepage": "https://github.com/dragunovartem99/puzzfinder-api#readme",
