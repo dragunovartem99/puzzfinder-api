@@ -1,7 +1,7 @@
 export function toDbQuery(query) {
-	const dbQuery = {
-		Rating: {},
-	};
+	const dbQuery = {};
+
+	if (query.minRating || query.maxRating) dbQuery.Rating = {};
 
 	query.minRating && (dbQuery.Rating["$gte"] = parseInt(query.minRating));
 	query.maxRating && (dbQuery.Rating["$lte"] = parseInt(query.maxRating));
