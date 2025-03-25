@@ -1,10 +1,10 @@
 export function translateQuery(query) {
 	const dbQuery = { 
-		rating: {}
+		Rating: {}
 	};
 
-	query.minRating && (dbQuery.rating["$gte"] = query.minRating);
-	query.maxRating && (dbQuery.rating["$lte"] = query.maxRating);
+	query.minRating && (dbQuery.Rating["$gte"] = query.minRating);
+	query.maxRating && (dbQuery.Rating["$lte"] = query.maxRating);
 
 	return dbQuery;
 }
