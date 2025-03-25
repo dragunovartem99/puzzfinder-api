@@ -6,8 +6,8 @@ const getPage = (query) => parseInt(query.page) || DEFAULT_PAGE;
 const getLimit = (query) => Math.min(parseInt(query.limit) || DEFAULT_LIMIT, MAX_LIMIT);
 
 export function usePagination(query) {
-	const limit = getLimit(query);
 	const page = getPage(query);
+	const limit = getLimit(query);
 	const skip = (page - 1) * limit;
-	return { limit, skip };
+	return { page, limit, skip };
 }
