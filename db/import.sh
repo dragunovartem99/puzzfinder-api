@@ -34,7 +34,7 @@ CREATE TABLE $TABLE_NAME (
 .import '$INPUT_CSV' $TABLE_NAME
 
 -- Remove header row if it was imported
-DELETE FROM $TABLE_NAME WHERE puzzleId = 'puzzleId';
+DELETE FROM $TABLE_NAME WHERE puzzleId = 'PuzzleId';
 
 CREATE INDEX idx_rating ON $TABLE_NAME(rating);
 EOF

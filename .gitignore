@@ -3,4 +3,4 @@ node_modules
 
 # data
 db/lichess_db_puzzle.csv
-db/puzzfinder.db
+db/puzzfinder.db*
