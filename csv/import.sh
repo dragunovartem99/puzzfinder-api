@@ -12,5 +12,3 @@ mongoimport \
 	--collection puzzles \
 	--columnsHaveTypes \
 	--fieldFile fields.txt
-
-mongosh puzzfinder --eval "db.puzzles.createIndex({ Rating: 1 })"
