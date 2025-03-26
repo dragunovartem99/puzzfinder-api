@@ -4,10 +4,11 @@
 # wget https://database.lichess.org/lichess_db_puzzle.csv.zst
 
 mongosh puzzfinder --eval "db.puzzles.drop()"
+
 mongoimport \
-	--db puzzfinder \
-	--collection puzzles \
-	--type csv \
-	--file <(zstdcat lichess_db_puzzle.csv.zst | sed '1s/PuzzleId/_id/') \
-	--headerline \
-	--mode=upsert
+  --type csv \
+  --file <(zstdcat lichess_db_puzzle.csv.zst | tail -n +2) \
+  --db puzzfinder \
+  --collection puzzles \
+  --columnsHaveTypes \
+  --fieldFile fields.txt
