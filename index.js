@@ -10,7 +10,7 @@ app.get("/puzzles", async (req, res) => {
 	const pagination = getPagination(query);
 
 	// TODO: Refactor this mess
-	const conditions = ["themes LIKE '%mate%'"];
+	const conditions = [];
 	const params = [];
 
 	if (query.minRating !== undefined) {
