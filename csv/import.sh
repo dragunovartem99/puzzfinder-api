@@ -6,9 +6,11 @@
 mongosh puzzfinder --eval "db.puzzles.drop()"
 
 mongoimport \
-  --type csv \
-  --file <(zstdcat lichess_db_puzzle.csv.zst | tail -n +2) \
-  --db puzzfinder \
-  --collection puzzles \
-  --columnsHaveTypes \
-  --fieldFile fields.txt
+	--type csv \
+	--file <(zstdcat lichess_db_puzzle.csv.zst | tail -n +2) \
+	--db puzzfinder \
+	--collection puzzles \
+	--columnsHaveTypes \
+	--fieldFile fields.txt
+
+mongosh puzzfinder --eval "db.puzzles.createIndex({ Rating: 1 })"

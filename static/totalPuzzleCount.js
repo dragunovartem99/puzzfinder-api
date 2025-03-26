@@ -1,2 +1,2 @@
 // db.puzzles.countDocuments()
-export const totalPuzzleCount = 4_800_439;
+export const totalPuzzleCount = 4_800_453;
