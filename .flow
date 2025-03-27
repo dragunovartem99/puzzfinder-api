@@ -1,0 +1,17 @@
+#!/bin/bash
+
+flow="puzzfinder-api"
+is_active=$(tmux list-sessions | grep $flow)
+
+if [[ ! $is_active ]]; then
+	tmux new-session -d -s $flow
+
+	tmux rename-window -t $flow:0 "nvim"
+	tmux new-window -t $flow:1 -n "bash"
+	tmux new-window -t $flow:2 -n "node"
+
+	tmux send-keys -t $flow:"nvim" "nvim ." ENTER
+	tmux send-keys -t $flow:"node" "npm run dev" ENTER
+fi
+
+tmux attach-session -t $flow:"nvim"
