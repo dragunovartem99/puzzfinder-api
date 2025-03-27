@@ -1,6 +1,6 @@
 # npm
 node_modules
 
-# sql
-sql/lichess_db_puzzle.csv
-sql/puzzfinder.db*
+# data
+lichess_db_puzzle.csv
+puzzfinder.db*
