@@ -1,54 +1,32 @@
-import express from "express";
+import { app } from "./components/app.js";
 import { db } from "./components/db.js";
 import { getPagination } from "./functions/getPagination.js";
+import { parseFilters } from "./functions/parseFilters.js";
 
-const app = express();
-const port = 50000;
+app.listen(50000, () => console.log(`Puzzfinder API listening on port 50000`));
 
 app.get("/puzzles", async (req, res) => {
-	const { query } = req;
-	const pagination = getPagination(query);
+	const filters = parseFilters(req.query);
+	const { sql: whereSql, params } = filters.toSQL();
+	const whereClause = whereSql ? `WHERE ${whereSql}` : "";
 
-	// TODO: Refactor this mess
-	const conditions = [];
-	const params = [];
-
-	if (query.minRating !== undefined) {
-		conditions.push("rating >= ?");
-		params.push(query.minRating);
-	}
-
-	if (query.maxRating !== undefined) {
-		conditions.push("rating <= ?");
-		params.push(query.maxRating);
-	}
-
-	const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+	const pagination = getPagination(req.query);
 
 	const dataSql = [
 		"SELECT * FROM puzzles",
 		whereClause,
-		"ORDER BY rating DESC",
 		`LIMIT ${pagination.limit} OFFSET ${pagination.offset}`,
-	]
-		.join(" ")
-		.replace(/\s+/g, " ")
-		.trim();
+	].join(" ");
 
-	const countSql = ["SELECT COUNT(*) as total FROM puzzles", whereClause]
-		.join(" ")
-		.replace(/\s+/g, " ")
-		.trim();
+	const countSql = `SELECT COUNT(*) as total FROM puzzles ${whereClause}`;
 
-	const statement = db.prepare(dataSql);
-	const countStatement = db.prepare(countSql);
-
-	const results = params.length > 0 ? statement.all(...params) : statement.all();
-	const totalResult = params.length > 0 ? countStatement.get(...params) : countStatement.get();
-	const total = totalResult.total;
+	const [puzzles, { total }] = [
+		db.prepare(dataSql).all([...params]),
+		db.prepare(countSql).get([...params]),
+	];
 
 	res.json({
-		data: results,
+		data: puzzles,
 		pagination: {
 			total,
 			page: pagination.page,
@@ -57,5 +35,3 @@ app.get("/puzzles", async (req, res) => {
 		},
 	});
 });
-
-app.listen(port, () => console.log(`PuzzFinder API listening on port ${port}`));
