@@ -1,4 +1,4 @@
--- First import the CSV into a temporary table
+-- Raw representation of CSV contents
 CREATE TEMPORARY TABLE temp_puzzles (
     id TEXT,
     fen TEXT,
@@ -13,9 +13,9 @@ CREATE TEMPORARY TABLE temp_puzzles (
 );
 
 .mode csv
-.import lichess_db_puzzle.csv temp_puzzles
+.import --skip 1 lichess_db_puzzle.csv temp_puzzles
 
--- Insert into puzzles table
+-- Populate puzzles table (with no themes)
 INSERT INTO puzzles (id, fen, moves, rating, ratingDeviation, popularity, nbPlays, gameUrl, openingTags)
 SELECT id, fen, moves, rating, ratingDeviation, popularity, nbPlays, gameUrl, openingTags
 FROM temp_puzzles;
@@ -40,5 +40,5 @@ SELECT tp.id, t.id
 FROM temp_puzzles tp
 JOIN themes t ON ' ' || tp.themes || ' ' LIKE '% ' || t.name || ' %';
 
--- Clean up
+-- Cleanup
 DROP TABLE temp_puzzles;
