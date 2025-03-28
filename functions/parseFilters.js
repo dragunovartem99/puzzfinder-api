@@ -1,15 +1,15 @@
 import { Filter } from "../objects/Filter.js";
-import { FilterGroup } from "../objects/FilterGroup.js";
+import { Filters } from "../objects/Filters.js";
 
 export function parseFilters(query) {
-	const group = new FilterGroup("AND");
+	const filters = new Filters("AND");
 
 	if (query.rating) {
-		group.addFilter(new Filter("rating", "=", query.rating));
+		filters.addFilter(new Filter("rating", "=", query.rating));
 	} else {
-		query.minRating && group.addFilter(new Filter("rating", ">=", query.minRating));
-		query.maxRating && group.addFilter(new Filter("rating", "<=", query.maxRating));
+		query.ratingMin && filters.addFilter(new Filter("rating", ">=", query.ratingMin));
+		query.ratingMax && filters.addFilter(new Filter("rating", "<=", query.ratingMax));
 	}
 
-	return group;
+	return filters;
 }

@@ -1,10 +1,9 @@
-export class FilterGroup {
+export class Filters {
 	#logic;
 	#filters = [];
 
-	constructor(logic = "AND", filters = []) {
+	constructor(logic) {
 		this.#logic = logic;
-		this.#filters = filters;
 	}
 
 	addFilter(filter) {
