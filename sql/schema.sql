@@ -25,9 +25,3 @@ CREATE TABLE puzzle_themes (
     FOREIGN KEY (puzzle_id) REFERENCES puzzles(id),
     FOREIGN KEY (theme_id) REFERENCES themes(id)
 );
-
--- Indexes
-CREATE INDEX idx_puzzles_rating ON puzzles(rating);
-CREATE INDEX idx_puzzles_popularity ON puzzles(popularity);
-CREATE INDEX idx_puzzles_nbPlays ON puzzles(nbPlays);
-CREATE INDEX idx_themes_name ON themes(name);
