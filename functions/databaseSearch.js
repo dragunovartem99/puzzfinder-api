@@ -13,6 +13,7 @@ export function databaseSearch(query) {
 	const dataSql = [
 		"SELECT * FROM puzzles",
 		whereClause,
+		"ORDER BY id",
 		`LIMIT ${pagination.limit} OFFSET ${pagination.offset}`,
 	].join(" ");
 
