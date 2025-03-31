@@ -1,29 +1,13 @@
 import { database } from "../components/database.js";
-import { parseFilters } from "./parseFilters.js";
-import { parseSortOptions } from "./parseSortOptions.js";
 import { parsePagination } from "./parsePagination.js";
+import { generateSQL } from "./generateSQL.js";
 
 export function databaseSearch(payload) {
-	console.log(payload);
-	const filters = parseFilters(payload.filters);
 	const pagination = parsePagination(payload.pagination);
-	const sort = parseSortOptions("");
+	const { dataSQL, countSQL, params } = generateSQL(payload, pagination);
 
-	const { sql: whereSql, params } = filters.toSQL();
-	const whereClause = whereSql ? `WHERE ${filters.toSQL()}` : "";
-	const sortClause = `ORDER BY ${sort.by} ${sort.order}`;
-
-	const dataSql = [
-		"SELECT * FROM puzzles",
-		whereClause,
-		sortClause,
-		`LIMIT ${pagination.limit} OFFSET ${pagination.offset}`,
-	].join(" ");
-
-	const countSql = `SELECT COUNT(*) as total FROM puzzles ${whereClause}`;
-
-	const statement = database.prepare(dataSql);
-	const countStatement = database.prepare(countSql);
+	const statement = database.prepare(dataSQL);
+	const countStatement = database.prepare(countSQL);
 
 	const puzzles = params.length ? statement.all(...params) : statement.all();
 	const { total } = params.length ? countStatement.get(...params) : countStatement.get();
