@@ -1,19 +1,21 @@
 import { database } from "../components/database.js";
 import { parseFilters } from "./parseFilters.js";
-import { getPagination } from "./getPagination.js";
+import { parseSortOptions } from "./parseSortOptions.js";
+import { parsePagination } from "./parsePagination.js";
 
 export function databaseSearch(query) {
 	const filters = parseFilters(query);
+	const sort = parseSortOptions(query);
+	const pagination = parsePagination(query);
 
 	const { sql: whereSql, params } = filters.toSQL();
 	const whereClause = whereSql ? `WHERE ${whereSql}` : "";
-
-	const pagination = getPagination(query);
+	const sortClause = `ORDER BY ${sort.by} ${sort.order}`;
 
 	const dataSql = [
 		"SELECT * FROM puzzles",
 		whereClause,
-		"ORDER BY id",
+		sortClause,
 		`LIMIT ${pagination.limit} OFFSET ${pagination.offset}`,
 	].join(" ");
 
