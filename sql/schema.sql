@@ -3,6 +3,7 @@ CREATE TABLE puzzles (
     id TEXT PRIMARY KEY,
     fen TEXT NOT NULL,
     moves TEXT NOT NULL,
+    movesNumber INTEGER NOT NULL,
     rating INTEGER NOT NULL,
     ratingDeviation INTEGER NOT NULL,
     popularity INTEGER NOT NULL,

@@ -16,6 +16,7 @@ export function parseFilters(query) {
 	parseRangeFilter({ query, filters, name: "rating" });
 	parseRangeFilter({ query, filters, name: "popularity" });
 	parseRangeFilter({ query, filters, name: "nbPlays" });
+	parseRangeFilter({ query, filters, name: "movesNumber" });
 
 	return filters;
 }

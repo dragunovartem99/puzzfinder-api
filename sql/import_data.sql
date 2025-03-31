@@ -16,8 +16,18 @@ CREATE TEMPORARY TABLE temp_puzzles (
 .import --skip 1 lichess_db_puzzle.csv temp_puzzles
 
 -- Populate puzzles table (with no themes)
-INSERT INTO puzzles (id, fen, moves, rating, ratingDeviation, popularity, nbPlays, gameUrl, openingTags)
-SELECT id, fen, moves, rating, ratingDeviation, popularity, nbPlays, gameUrl, openingTags
+INSERT INTO puzzles (id, fen, moves, movesNumber, rating, ratingDeviation, popularity, nbPlays, gameUrl, openingTags)
+SELECT 
+    id, 
+    fen, 
+    moves, 
+    (LENGTH(moves) - LENGTH(REPLACE(moves, ' ', '')) + 1) / 2 AS movesNumber, -- counts spaces
+    rating, 
+    ratingDeviation, 
+    popularity, 
+    nbPlays, 
+    gameUrl, 
+    openingTags
 FROM temp_puzzles;
 
 -- Process themes
