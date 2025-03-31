@@ -3,13 +3,14 @@ import { parseFilters } from "./parseFilters.js";
 import { parseSortOptions } from "./parseSortOptions.js";
 import { parsePagination } from "./parsePagination.js";
 
-export function databaseSearch(query) {
-	const filters = parseFilters(query);
-	const sort = parseSortOptions(query);
-	const pagination = parsePagination(query);
+export function databaseSearch(payload) {
+	console.log(payload);
+	const filters = parseFilters(payload.filters);
+	const pagination = parsePagination(payload.pagination);
+	const sort = parseSortOptions("");
 
 	const { sql: whereSql, params } = filters.toSQL();
-	const whereClause = whereSql ? `WHERE ${whereSql}` : "";
+	const whereClause = whereSql ? `WHERE ${filters.toSQL()}` : "";
 	const sortClause = `ORDER BY ${sort.by} ${sort.order}`;
 
 	const dataSql = [

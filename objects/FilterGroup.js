@@ -1,4 +1,4 @@
-export class Filters {
+export class FilterGroup {
 	#logic;
 	#filters = [];
 

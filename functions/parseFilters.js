@@ -1,22 +1,22 @@
 import { Filter } from "../objects/Filter.js";
-import { Filters } from "../objects/Filters.js";
+import { FilterGroup } from "../objects/FilterGroup.js";
 
-function parseRangeFilter({ query, filters, name }) {
-	if (query[name]) {
-		filters.addFilter(new Filter(name, "=", query[name]));
+function parseRangeFilter({ group, filters, name }) {
+	if (filters[name].equals) {
+		group.addFilter(new Filter(name, "=", query[name]));
 	} else {
-		query[name + "Min"] && filters.addFilter(new Filter(name, ">=", query[name + "Min"]));
-		query[name + "Max"] && filters.addFilter(new Filter(name, "<=", query[name + "Max"]));
+		filters[name].min && group.addFilter(new Filter(name, ">=", filters[name].min));
+		filters[name].max && group.addFilter(new Filter(name, "<=", filters[name].max));
 	}
 }
 
-export function parseFilters(query) {
-	const filters = new Filters("AND");
+export function parseFilters(filters) {
+	const group = new FilterGroup("AND");
 
-	parseRangeFilter({ query, filters, name: "rating" });
-	parseRangeFilter({ query, filters, name: "popularity" });
-	parseRangeFilter({ query, filters, name: "nbPlays" });
-	parseRangeFilter({ query, filters, name: "movesNumber" });
+	parseRangeFilter({ group, filters, name: "rating" });
+	parseRangeFilter({ group, filters, name: "popularity" });
+	parseRangeFilter({ group, filters, name: "nbPlays" });
+	parseRangeFilter({ group, filters, name: "movesNumber" });
 
-	return filters;
+	return group;
 }
