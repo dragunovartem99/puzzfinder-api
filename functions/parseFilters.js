@@ -3,9 +3,8 @@ import { FilterGroup } from "../objects/FilterGroup.js";
 
 function parseRangeFilter({ group, filters, name }) {
 	if (filters[name].equals) {
-		group.addFilter(new Filter(name, "=", query[name]));
+		group.addFilter(new Filter(name, "=", filters[name].equals));
 	} else {
-		console.log(name, filters[name]);
 		filters[name].min && group.addFilter(new Filter(name, ">=", filters[name].min));
 		filters[name].max && group.addFilter(new Filter(name, "<=", filters[name].max));
 	}
