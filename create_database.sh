@@ -32,7 +32,7 @@ IMPORT_SQL="INSERT INTO puzzles SELECT
 
 for theme in "${THEMES[@]}"; do
     IMPORT_SQL+="
-    CASE WHEN themes LIKE '%${theme}%' THEN 1 ELSE 0 END AS theme${theme^},"
+    CASE WHEN themes LIKE '%${theme}%' THEN 1 ELSE 0 END AS theme_${theme},"
 done
 
 # Remove trailing comma

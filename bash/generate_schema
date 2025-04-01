@@ -19,11 +19,10 @@ generate_schema() {
 
 		for (( i=0; i<${#THEMES[@]}; i++)); do
 			theme="${THEMES[$i]}"
-			theme="${theme^}"
 			if [ $i -eq $((${#THEMES[@]} - 1)) ]; then
-				echo "    theme${theme} BOOLEAN NOT NULL CHECK (theme${theme} IN (0, 1))"
+				echo "    theme_${theme} BOOLEAN NOT NULL CHECK (theme_${theme} IN (0, 1))"
 			else
-				echo "    theme${theme} BOOLEAN NOT NULL CHECK (theme${theme} IN (0, 1)),"
+				echo "    theme_${theme} BOOLEAN NOT NULL CHECK (theme_${theme} IN (0, 1)),"
 			fi
 		done
 

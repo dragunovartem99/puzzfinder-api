@@ -13,7 +13,17 @@ export function databaseSearch(payload) {
 	const { total } = params.length ? countStatement.get(...params) : countStatement.get();
 
 	return {
-		data: puzzles,
+		data: puzzles.map((puzzle) => {
+			const themes = Object.keys(puzzle)
+				.filter((key) => key.startsWith("theme_") && puzzle[key] === 1)
+				.map((key) => key.slice(6));
+
+			const rest = Object.fromEntries(
+				Object.entries(puzzle).filter(([key]) => !key.startsWith("theme_"))
+			);
+
+			return { ...rest, themes };
+		}),
 		pagination: {
 			total,
 			page: pagination.page,
