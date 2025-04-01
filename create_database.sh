@@ -22,6 +22,7 @@ IMPORT_SQL="INSERT INTO puzzles SELECT
     id,
     fen,
     moves,
+    (LENGTH(moves) - LENGTH(REPLACE(moves, ' ', '')) + 1) / 2 AS movesNumber,
     rating,
     ratingDeviation,
     popularity,
