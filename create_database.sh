@@ -4,6 +4,7 @@
 #zstd -d lichess_db_puzzle.csv.zst
 
 source bash/themes
+source bash/generate_schema
 
 INPUT_CSV="lichess_db_puzzle.csv"
 DB_FILE="puzzfinder.db"
@@ -11,32 +12,7 @@ SCHEMA_FILE="sql/schema.sql"
 INDEXES_FILE="sql/indexes.sql"
 
 # Generate the schema with theme columns
-{
-    echo "CREATE TABLE puzzles ("
-    echo "    id TEXT PRIMARY KEY,"
-    echo "    fen TEXT NOT NULL,"
-    echo "    moves TEXT NOT NULL,"
-    echo "    rating INTEGER NOT NULL,"
-    echo "    ratingDeviation INTEGER NOT NULL,"
-    echo "    popularity INTEGER NOT NULL,"
-    echo "    nbPlays INTEGER NOT NULL,"
-    echo "    gameUrl TEXT NOT NULL,"
-    echo "    openingTags TEXT,"
-    echo
-    echo "    -- Jesus, forgive my wicked soul"
-
-    for (( i=0; i<${#THEMES[@]}; i++)); do
-        theme="${THEMES[$i]}"
-        theme="${theme^}"
-        if [ $i -eq $((${#THEMES[@]} - 1)) ]; then
-            echo "    theme${theme} BOOLEAN NOT NULL CHECK (theme${theme} IN (0, 1))"
-        else
-            echo "    theme${theme} BOOLEAN NOT NULL CHECK (theme${theme} IN (0, 1)),"
-        fi
-    done
-
-    echo ");"
-} > "$SCHEMA_FILE"
+generate_schema $SCHEMA_FILE
 
 # Create database and schema
 sqlite3 $DB_FILE < $SCHEMA_FILE
