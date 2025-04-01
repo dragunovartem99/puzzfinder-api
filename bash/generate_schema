@@ -18,11 +18,11 @@ generate_schema() {
 		echo "    -- Jesus, forgive my wicked soul"
 
 		for (( i=0; i<${#THEMES[@]}; i++)); do
-			theme="${THEMES[$i]}"
+			theme=${THEMES[$i]}
 			if [ $i -eq $((${#THEMES[@]} - 1)) ]; then
-				echo "    theme_${theme} BOOLEAN NOT NULL CHECK (theme_${theme} IN (0, 1))"
+				echo "    theme_${theme} BOOLEAN NOT NULL"
 			else
-				echo "    theme_${theme} BOOLEAN NOT NULL CHECK (theme_${theme} IN (0, 1)),"
+				echo "    theme_${theme} BOOLEAN NOT NULL,"
 			fi
 		done
 
