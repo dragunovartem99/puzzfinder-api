@@ -1,0 +1,31 @@
+#!/bin/bash
+
+generate_schema() {
+	local output_file=$1
+	{
+		echo "CREATE TABLE puzzles ("
+		echo "    id TEXT PRIMARY KEY,"
+		echo "    fen TEXT NOT NULL,"
+		echo "    moves TEXT NOT NULL,"
+		echo "    movesNumber INTEGER NOT NULL,"
+		echo "    rating INTEGER NOT NULL,"
+		echo "    ratingDeviation INTEGER NOT NULL,"
+		echo "    popularity INTEGER NOT NULL,"
+		echo "    nbPlays INTEGER NOT NULL,"
+		echo "    gameUrl TEXT NOT NULL,"
+		echo "    openingTags TEXT,"
+		echo
+		echo "    -- Jesus, forgive my wicked soul"
+
+		for (( i=0; i<${#THEMES[@]}; i++)); do
+			theme="${THEMES[$i]}"
+			if [ $i -eq $((${#THEMES[@]} - 1)) ]; then
+				echo "    theme_${theme} BOOLEAN NOT NULL CHECK (theme_${theme} IN (0, 1))"
+			else
+				echo "    theme_${theme} BOOLEAN NOT NULL CHECK (theme_${theme} IN (0, 1)),"
+			fi
+		done
+
+		echo ");"
+	} > $output_file
+}

@@ -1,4 +1,3 @@
--- Main puzzles table
 CREATE TABLE puzzles (
     id TEXT PRIMARY KEY,
     fen TEXT NOT NULL,
@@ -9,20 +8,68 @@ CREATE TABLE puzzles (
     popularity INTEGER NOT NULL,
     nbPlays INTEGER NOT NULL,
     gameUrl TEXT NOT NULL,
-    openingTags TEXT
-);
+    openingTags TEXT,
 
--- Themes lookup table
-CREATE TABLE themes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT UNIQUE NOT NULL
-);
-
--- Puzzle-theme relationship table
-CREATE TABLE puzzle_themes (
-    puzzle_id TEXT NOT NULL,
-    theme_id INTEGER NOT NULL,
-    PRIMARY KEY (puzzle_id, theme_id),
-    FOREIGN KEY (puzzle_id) REFERENCES puzzles(id),
-    FOREIGN KEY (theme_id) REFERENCES themes(id)
+    -- Jesus, forgive my wicked soul
+    theme_advancedPawn BOOLEAN NOT NULL CHECK (theme_advancedPawn IN (0, 1)),
+    theme_advantage BOOLEAN NOT NULL CHECK (theme_advantage IN (0, 1)),
+    theme_anastasiaMate BOOLEAN NOT NULL CHECK (theme_anastasiaMate IN (0, 1)),
+    theme_arabianMate BOOLEAN NOT NULL CHECK (theme_arabianMate IN (0, 1)),
+    theme_attackingF2F7 BOOLEAN NOT NULL CHECK (theme_attackingF2F7 IN (0, 1)),
+    theme_attraction BOOLEAN NOT NULL CHECK (theme_attraction IN (0, 1)),
+    theme_backRankMate BOOLEAN NOT NULL CHECK (theme_backRankMate IN (0, 1)),
+    theme_bishopEndgame BOOLEAN NOT NULL CHECK (theme_bishopEndgame IN (0, 1)),
+    theme_bodenMate BOOLEAN NOT NULL CHECK (theme_bodenMate IN (0, 1)),
+    theme_castling BOOLEAN NOT NULL CHECK (theme_castling IN (0, 1)),
+    theme_capturingDefender BOOLEAN NOT NULL CHECK (theme_capturingDefender IN (0, 1)),
+    theme_crushing BOOLEAN NOT NULL CHECK (theme_crushing IN (0, 1)),
+    theme_doubleBishopMate BOOLEAN NOT NULL CHECK (theme_doubleBishopMate IN (0, 1)),
+    theme_dovetailMate BOOLEAN NOT NULL CHECK (theme_dovetailMate IN (0, 1)),
+    theme_equality BOOLEAN NOT NULL CHECK (theme_equality IN (0, 1)),
+    theme_kingsideAttack BOOLEAN NOT NULL CHECK (theme_kingsideAttack IN (0, 1)),
+    theme_clearance BOOLEAN NOT NULL CHECK (theme_clearance IN (0, 1)),
+    theme_defensiveMove BOOLEAN NOT NULL CHECK (theme_defensiveMove IN (0, 1)),
+    theme_deflection BOOLEAN NOT NULL CHECK (theme_deflection IN (0, 1)),
+    theme_discoveredAttack BOOLEAN NOT NULL CHECK (theme_discoveredAttack IN (0, 1)),
+    theme_doubleCheck BOOLEAN NOT NULL CHECK (theme_doubleCheck IN (0, 1)),
+    theme_endgame BOOLEAN NOT NULL CHECK (theme_endgame IN (0, 1)),
+    theme_exposedKing BOOLEAN NOT NULL CHECK (theme_exposedKing IN (0, 1)),
+    theme_fork BOOLEAN NOT NULL CHECK (theme_fork IN (0, 1)),
+    theme_hangingPiece BOOLEAN NOT NULL CHECK (theme_hangingPiece IN (0, 1)),
+    theme_hookMate BOOLEAN NOT NULL CHECK (theme_hookMate IN (0, 1)),
+    theme_interference BOOLEAN NOT NULL CHECK (theme_interference IN (0, 1)),
+    theme_intermezzo BOOLEAN NOT NULL CHECK (theme_intermezzo IN (0, 1)),
+    theme_killBoxMate BOOLEAN NOT NULL CHECK (theme_killBoxMate IN (0, 1)),
+    theme_vukovicMate BOOLEAN NOT NULL CHECK (theme_vukovicMate IN (0, 1)),
+    theme_knightEndgame BOOLEAN NOT NULL CHECK (theme_knightEndgame IN (0, 1)),
+    theme_long BOOLEAN NOT NULL CHECK (theme_long IN (0, 1)),
+    theme_master BOOLEAN NOT NULL CHECK (theme_master IN (0, 1)),
+    theme_masterVsMaster BOOLEAN NOT NULL CHECK (theme_masterVsMaster IN (0, 1)),
+    theme_mate BOOLEAN NOT NULL CHECK (theme_mate IN (0, 1)),
+    theme_mateIn1 BOOLEAN NOT NULL CHECK (theme_mateIn1 IN (0, 1)),
+    theme_mateIn2 BOOLEAN NOT NULL CHECK (theme_mateIn2 IN (0, 1)),
+    theme_mateIn3 BOOLEAN NOT NULL CHECK (theme_mateIn3 IN (0, 1)),
+    theme_mateIn4 BOOLEAN NOT NULL CHECK (theme_mateIn4 IN (0, 1)),
+    theme_mateIn5 BOOLEAN NOT NULL CHECK (theme_mateIn5 IN (0, 1)),
+    theme_middlegame BOOLEAN NOT NULL CHECK (theme_middlegame IN (0, 1)),
+    theme_oneMove BOOLEAN NOT NULL CHECK (theme_oneMove IN (0, 1)),
+    theme_opening BOOLEAN NOT NULL CHECK (theme_opening IN (0, 1)),
+    theme_pawnEndgame BOOLEAN NOT NULL CHECK (theme_pawnEndgame IN (0, 1)),
+    theme_pin BOOLEAN NOT NULL CHECK (theme_pin IN (0, 1)),
+    theme_promotion BOOLEAN NOT NULL CHECK (theme_promotion IN (0, 1)),
+    theme_queenEndgame BOOLEAN NOT NULL CHECK (theme_queenEndgame IN (0, 1)),
+    theme_queenRookEndgame BOOLEAN NOT NULL CHECK (theme_queenRookEndgame IN (0, 1)),
+    theme_queensideAttack BOOLEAN NOT NULL CHECK (theme_queensideAttack IN (0, 1)),
+    theme_quietMove BOOLEAN NOT NULL CHECK (theme_quietMove IN (0, 1)),
+    theme_rookEndgame BOOLEAN NOT NULL CHECK (theme_rookEndgame IN (0, 1)),
+    theme_sacrifice BOOLEAN NOT NULL CHECK (theme_sacrifice IN (0, 1)),
+    theme_short BOOLEAN NOT NULL CHECK (theme_short IN (0, 1)),
+    theme_skewer BOOLEAN NOT NULL CHECK (theme_skewer IN (0, 1)),
+    theme_smotheredMate BOOLEAN NOT NULL CHECK (theme_smotheredMate IN (0, 1)),
+    theme_superGM BOOLEAN NOT NULL CHECK (theme_superGM IN (0, 1)),
+    theme_trappedPiece BOOLEAN NOT NULL CHECK (theme_trappedPiece IN (0, 1)),
+    theme_underPromotion BOOLEAN NOT NULL CHECK (theme_underPromotion IN (0, 1)),
+    theme_veryLong BOOLEAN NOT NULL CHECK (theme_veryLong IN (0, 1)),
+    theme_xRayAttack BOOLEAN NOT NULL CHECK (theme_xRayAttack IN (0, 1)),
+    theme_zugzwang BOOLEAN NOT NULL CHECK (theme_zugzwang IN (0, 1))
 );

@@ -18,5 +18,7 @@ export function parseFilters(filters) {
 	parseRangeFilter({ group, filters, name: "nbPlays" });
 	parseRangeFilter({ group, filters, name: "movesNumber" });
 
+	filters.themes?.forEach((theme) => group.addFilter(new Filter(`theme_${theme}`, "=", 1)));
+
 	return group;
 }
