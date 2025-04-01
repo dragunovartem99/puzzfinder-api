@@ -2,7 +2,9 @@ import { Filter } from "../objects/Filter.js";
 import { FilterGroup } from "../objects/FilterGroup.js";
 
 function parseRangeFilter({ group, filters, name }) {
-	if (filters[name].equals) {
+	if (!filters[name]) {
+		return;
+	} else if (filters[name].equals) {
 		group.addFilter(new Filter(name, "=", filters[name].equals));
 	} else {
 		filters[name].min && group.addFilter(new Filter(name, ">=", filters[name].min));
