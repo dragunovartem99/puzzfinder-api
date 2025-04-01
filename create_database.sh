@@ -3,11 +3,12 @@
 #wget https://database.lichess.org/lichess_db_puzzle.csv.zst
 #zstd -d lichess_db_puzzle.csv.zst
 
-source ./themes
+source bash/themes
 
 INPUT_CSV="lichess_db_puzzle.csv"
 DB_FILE="puzzfinder.db"
 SCHEMA_FILE="sql/schema.sql"
+INDEXES_FILE="sql/indexes.sql"
 
 # Generate the schema with theme columns
 {
@@ -37,6 +38,7 @@ SCHEMA_FILE="sql/schema.sql"
     echo ");"
 } > "$SCHEMA_FILE"
 
+# Create database and schema
 sqlite3 $DB_FILE < $SCHEMA_FILE
 
 # Generate the SQL for importing data with theme columns
@@ -69,5 +71,9 @@ $IMPORT_SQL
 DROP TABLE temp_import;
 VACUUM;
 EOF
+
+# Apply indexes after import is complete
+echo "Creating indexes..."
+sqlite3 "$DB_FILE" < "$INDEXES_FILE"
 
 echo "Import completed. Database file: $DB_FILE"
