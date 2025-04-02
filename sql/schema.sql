@@ -1,5 +1,5 @@
 CREATE TABLE puzzles (
-    id TEXT PRIMARY KEY,
+    puzzleId TEXT PRIMARY KEY,
     fen TEXT NOT NULL,
     moves TEXT NOT NULL,
     movesNumber INTEGER NOT NULL,

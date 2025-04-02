@@ -1,56 +1,26 @@
 #!/bin/bash
 
-#wget https://database.lichess.org/lichess_db_puzzle.csv.zst
-#zstd -d lichess_db_puzzle.csv.zst
-
-source bash/themes
-source bash/generate_schema
+source ./automation/themes
+source ./automation/print_header
 
 INPUT_CSV="lichess_db_puzzle.csv"
 DB_FILE="puzzfinder.db"
 SCHEMA_FILE="sql/schema.sql"
 INDEXES_FILE="sql/indexes.sql"
 
-# Generate the schema with theme columns
-generate_schema $SCHEMA_FILE
+if [ ! -f $DB_FILE ] && [ ! -f $INPUT_CSV ]; then
+    print_header "Getting .csv dataset"
+    wget https://database.lichess.org/lichess_db_puzzle.csv.zst
+    zstd -d lichess_db_puzzle.csv.zst && rm lichess_db_puzzle.csv.zst
+fi
 
-# Create database and schema
-sqlite3 $DB_FILE < $SCHEMA_FILE
+print_header "Creating schema"
+. ./automation/create_schema
 
-# Generate the SQL for importing data with theme columns
-IMPORT_SQL="INSERT INTO puzzles SELECT 
-    id,
-    fen,
-    moves,
-    (LENGTH(moves) - LENGTH(REPLACE(moves, ' ', '')) + 1) / 2 AS movesNumber,
-    rating,
-    ratingDeviation,
-    popularity,
-    nbPlays,
-    gameUrl,
-    openingTags,"
+print_header "Importing data"
+. ./automation/import_data
 
-for theme in "${THEMES[@]}"; do
-    IMPORT_SQL+="
-    CASE WHEN themes LIKE '%${theme}%' THEN 1 ELSE 0 END AS theme_${theme},"
-done
-
-# Remove trailing comma
-IMPORT_SQL="${IMPORT_SQL%,} FROM temp_import;"
-
-echo "Importing data..."
-sqlite3 "$DB_FILE" <<EOF
-.mode csv
-.import "$INPUT_CSV" temp_import
-
-$IMPORT_SQL
-
-DROP TABLE temp_import;
-VACUUM;
-EOF
-
-# Apply indexes after import is complete
-echo "Creating indexes..."
+print_header "Creating indexes"
 sqlite3 "$DB_FILE" < "$INDEXES_FILE"
 
-echo "Import completed. Database file: $DB_FILE"
+print_header "Database is ready!"

@@ -1,0 +1,31 @@
+#!/bin/bash
+
+{
+	echo "CREATE TABLE puzzles ("
+	echo "    puzzleId TEXT PRIMARY KEY,"
+	echo "    fen TEXT NOT NULL,"
+	echo "    moves TEXT NOT NULL,"
+	echo "    movesNumber INTEGER NOT NULL,"
+	echo "    rating INTEGER NOT NULL,"
+	echo "    ratingDeviation INTEGER NOT NULL,"
+	echo "    popularity INTEGER NOT NULL,"
+	echo "    nbPlays INTEGER NOT NULL,"
+	echo "    gameUrl TEXT NOT NULL,"
+	echo "    openingTags TEXT,"
+	echo
+	echo "    -- Jesus, forgive my wicked soul"
+
+	for (( i=0; i<${#THEMES[@]}; i++)); do
+		theme=${THEMES[$i]}
+		if [ $i -eq $((${#THEMES[@]} - 1)) ]; then
+			echo "    theme_${theme} BOOLEAN NOT NULL"
+		else
+			echo "    theme_${theme} BOOLEAN NOT NULL,"
+		fi
+	done
+
+	echo ");"
+} > $SCHEMA_FILE
+
+# Create database and schema
+sqlite3 $DB_FILE < $SCHEMA_FILE
