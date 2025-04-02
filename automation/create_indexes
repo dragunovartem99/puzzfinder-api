@@ -5,13 +5,13 @@
 	echo "CREATE INDEX idx_puzzles_movesNumber ON puzzles(movesNumber);"
 	echo "CREATE INDEX idx_puzzles_popularity ON puzzles(popularity);"
 	echo "CREATE INDEX idx_puzzles_nbPlays ON puzzles(nbPlays);"
-	echo 
-	echo "-- $PRAYER"
 
-	for theme in "${THEMES[@]}"; do
+	echo -e "\n-- $PRAYER"
+
+	for theme in ${THEMES[@]}; do
 		theme="theme_$theme"
 		echo "CREATE INDEX idx_puzzles_$theme ON puzzles($theme) WHERE $theme = 1;"
 	done
 } > $INDEXES_FILE
 
-sqlite3 "$DB_FILE" < "$INDEXES_FILE"
+sqlite3 $DB_FILE < $INDEXES_FILE
