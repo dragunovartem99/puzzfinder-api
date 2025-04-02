@@ -20,6 +20,7 @@
 	"type": "module",
 	"main": "index.js",
 	"scripts": {
+		"start": "pm2 start index.js --name puzzfinder-api",
 		"dev": "nodemon index.js",
 		"flow": "./.flow",
 		"format": "prettier . --write",
@@ -33,6 +34,7 @@
 	},
 	"devDependencies": {
 		"@dragunovartem99/prettier-config": "^1.2.0",
+		"nodemon": "^3.1.9",
 		"prettier": "^3.5.3"
 	}
 }
