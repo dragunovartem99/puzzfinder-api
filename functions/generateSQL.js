@@ -16,7 +16,7 @@ export function generateSQL(payload, pagination) {
 		`LIMIT ${pagination.limit} OFFSET ${pagination.offset}`,
 	].join(" ");
 
-	const countSQL = `SELECT COUNT(*) as total FROM puzzles ${whereClause}`;
+	const countSQL = `SELECT COUNT(*) as count FROM puzzles ${whereClause}`;
 
 	return { dataSQL, countSQL, params };
 }
