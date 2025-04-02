@@ -12,20 +12,16 @@
 	echo "    nbPlays INTEGER NOT NULL,"
 	echo "    gameUrl TEXT NOT NULL,"
 	echo "    openingTags TEXT,"
-	echo
-	echo "    -- $PRAYER"
 
-	for (( i=0; i<${#THEMES[@]}; i++)); do
-		theme=${THEMES[$i]}
-		if [ $i -eq $((${#THEMES[@]} - 1)) ]; then
-			echo "    theme_${theme} BOOLEAN NOT NULL"
-		else
-			echo "    theme_${theme} BOOLEAN NOT NULL,"
-		fi
+	echo -e "\n    -- $PRAYER"
+
+	for theme in ${THEMES[@]}; do
+		theme="theme_$theme"
+		echo "    ${theme} BOOLEAN NOT NULL,"
 	done
 
 	echo ");"
-} > $SCHEMA_FILE
+} | tac | sed "2s/,$//" | tac > $SCHEMA_FILE # removes last theme's trailing comma
 
 # Create database and schema
 sqlite3 $DB_FILE < $SCHEMA_FILE
