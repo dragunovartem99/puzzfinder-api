@@ -13,7 +13,7 @@
 	echo "    gameUrl TEXT NOT NULL,"
 	echo "    openingTags TEXT,"
 	echo
-	echo "    -- Jesus, forgive my wicked soul"
+	echo "    -- $PRAYER"
 
 	for (( i=0; i<${#THEMES[@]}; i++)); do
 		theme=${THEMES[$i]}

@@ -1,9 +1,9 @@
 CREATE INDEX idx_puzzles_rating ON puzzles(rating);
 CREATE INDEX idx_puzzles_movesNumber ON puzzles(movesNumber);
-
 CREATE INDEX idx_puzzles_popularity ON puzzles(popularity);
 CREATE INDEX idx_puzzles_nbPlays ON puzzles(nbPlays);
 
+-- Jesus, forgive my wicked soul
 CREATE INDEX idx_puzzles_theme_advancedPawn ON puzzles(theme_advancedPawn) WHERE theme_advancedPawn = 1;
 CREATE INDEX idx_puzzles_theme_advantage ON puzzles(theme_advantage) WHERE theme_advantage = 1;
 CREATE INDEX idx_puzzles_theme_anastasiaMate ON puzzles(theme_anastasiaMate) WHERE theme_anastasiaMate = 1;

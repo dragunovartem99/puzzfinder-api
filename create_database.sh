@@ -2,6 +2,7 @@
 
 source ./automation/themes
 source ./automation/print_header
+source ./automation/prayer
 
 INPUT_CSV="lichess_db_puzzle.csv"
 DB_FILE="puzzfinder.db"
@@ -21,6 +22,6 @@ print_header "Importing data"
 . ./automation/import_data
 
 print_header "Creating indexes"
-sqlite3 "$DB_FILE" < "$INDEXES_FILE"
+. ./automation/create_indexes
 
 print_header "Database is ready!"
