@@ -22,7 +22,7 @@
 	"scripts": {
 		"start": "pm2 start index.js --name puzzfinder-api",
 		"dev": "nodemon index.js",
-		"flow": "./.flow",
+		"flow": "flow",
 		"format": "prettier . --write",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
