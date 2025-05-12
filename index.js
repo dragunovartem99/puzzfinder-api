@@ -1,6 +1,7 @@
 import { server } from "./components/server.js";
 import { databaseSearch } from "./functions/databaseSearch.js";
 
+const PORT = 50000;
 server.listen(50000, () => console.log(`Puzzfinder API listening on port 50000`));
 
 server.post("/puzzles", async (req, res) => {
