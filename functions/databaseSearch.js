@@ -6,18 +6,17 @@ import { generateSQL } from "./generateSQL.js";
 import { aggregateThemes } from "./aggregateThemes.js";
 
 export function databaseSearch(payload) {
-	const pagination = parsePagination(payload.pagination);
-	const search = new Search(database);
-
-	const { data, count: total } = search.sql(generateSQL(payload, pagination)).go();
+	const { data, count: total } = new Search(database)
+		.sql(generateSQL(payload, parsePagination(payload.pagination)))
+		.go();
 
 	return {
 		data: data.map(aggregateThemes),
 		pagination: {
 			total,
-			page: pagination.page,
-			limit: pagination.limit,
-			totalPages: Math.ceil(total / pagination.limit),
+			page: parsePagination(payload.pagination).page,
+			limit: parsePagination(payload.pagination).limit,
+			totalPages: Math.ceil(total / parsePagination(payload.pagination).limit),
 		},
 	};
 }

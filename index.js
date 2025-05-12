@@ -8,7 +8,7 @@ server.post("/puzzles", async (req, res) => {
 		const { data, pagination } = databaseSearch(req.body);
 		res.json({ data, pagination });
 	} catch (e) {
-		console.error("Search failed:", error);
+		console.error("Search failed:", e);
 		res.status(500).json({ error: "Internal server error" });
 	}
 });
