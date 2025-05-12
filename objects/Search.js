@@ -1,15 +1,19 @@
-import { database } from "../components/database.js";
 
 export class Search {
-	#db = database;
+	#db;
 	#params = [];
 	#dataSQL;
 	#countSQL;
 
-	constructor({ dataSQL, countSQL, params }) {
+	constructor(db) {
+		this.#db = db;
+	}
+
+	sql({ dataSQL, countSQL, params }) {
 		this.#dataSQL = dataSQL;
 		this.#countSQL = countSQL;
 		this.#params.push(...params);
+		return this;
 	}
 
 	go() {
