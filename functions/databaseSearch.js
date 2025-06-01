@@ -1,3 +1,5 @@
+import { database } from "../components/database.js";
+
 import { Search } from "../objects/Search.js";
 import { parsePagination } from "./parsePagination.js";
 import { generateSQL } from "./generateSQL.js";
@@ -5,9 +7,13 @@ import { aggregateThemes } from "./aggregateThemes.js";
 
 export function databaseSearch(payload) {
 	const pagination = parsePagination(payload.pagination);
-	const search = new Search(generateSQL(payload, pagination));
 
-	const { data, count: total } = search.go();
+	// prettier-ignore
+	const { data, count: total } = (
+		new Search(database)
+			.sql(generateSQL(payload, pagination))
+			.go()
+	);
 
 	return {
 		data: data.map(aggregateThemes),

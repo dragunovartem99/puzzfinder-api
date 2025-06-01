@@ -20,7 +20,7 @@
 	"type": "module",
 	"main": "index.js",
 	"scripts": {
-		"start": "pm2 start index.js --name puzzfinder-api",
+		"start": "pm2 start ecosystem.config.js",
 		"dev": "nodemon index.js",
 		"flow": "flow",
 		"format": "prettier . --write",
