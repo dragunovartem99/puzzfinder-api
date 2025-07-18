@@ -1,16 +1,6 @@
-import { databaseSearch } from "./functions/databaseSearch.js";
-import { ExpressServer } from "./server/objects/ExpressServer.ts";
+import app from "./app.ts";
+// import config from "./config";
 
-const server = new ExpressServer();
-
-server.listen(50000);
-
-server.acceptRequest("POST", "/puzzles", async (req, res) => {
-	try {
-		const { data, pagination } = databaseSearch(req.body);
-		res.json({ data, pagination });
-	} catch (e) {
-		console.error("Search failed:", e);
-		res.status(500).json({ error: "Internal server error" });
-	}
+app.listen(50000, () => {
+	console.log(`Server is running on port ${50000}`);
 });
