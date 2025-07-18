@@ -1,9 +1,11 @@
-import { server } from "./components/server.js";
 import { databaseSearch } from "./functions/databaseSearch.js";
+import { ExpressServer } from "./server/objects/ExpressServer.ts";
 
-const PORT = 50000;
+const server = new ExpressServer();
 
-server.post("/puzzles", async (req, res) => {
+server.listen(50000);
+
+server.onRequest("post", "/puzzles", async (req, res) => {
 	try {
 		const { data, pagination } = databaseSearch(req.body);
 		res.json({ data, pagination });
@@ -12,5 +14,3 @@ server.post("/puzzles", async (req, res) => {
 		res.status(500).json({ error: "Internal server error" });
 	}
 });
-
-server.listen(PORT, () => console.log(`Puzzfinder API listening on port ${PORT}`));
