@@ -5,7 +5,7 @@ const server = new ExpressServer();
 
 server.listen(50000);
 
-server.onRequest("post", "/puzzles", async (req, res) => {
+server.acceptRequest("POST", "/puzzles", async (req, res) => {
 	try {
 		const { data, pagination } = databaseSearch(req.body);
 		res.json({ data, pagination });
