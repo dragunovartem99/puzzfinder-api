@@ -1,8 +1,9 @@
 import knex, { type Knex } from "knex";
-import db from "../config/database.ts";
 
 import type { Puzzle, PaginatedPuzzles } from "../models/Puzzle.ts";
 import type { PuzzleSearchOptions } from "../models/PuzzleFilter.ts";
+
+import { paginateQuery } from "../utils/pagination.ts";
 
 export class PuzzleRepository {
 	private knex: Knex;
@@ -22,27 +23,7 @@ export class PuzzleRepository {
 			this.applyFilters(query, options.filters);
 		}
 
-		// Pagination logic remains the same
-		const page = options.pagination?.page || 1;
-		const limit = options.pagination?.limit || 10;
-		const offset = (page - 1) * limit;
-
-		const [puzzles, totalResult] = await Promise.all([
-			query.clone().limit(limit).offset(offset),
-			query.clone().count("* as total").first(),
-		]);
-
-		const total = Number(totalResult?.total) || 0;
-
-		return {
-			data: puzzles,
-			pagination: {
-				page,
-				limit,
-				total,
-				totalPages: Math.ceil(total / limit),
-			},
-		};
+		return paginateQuery<Puzzle>(query, options.pagination);
 	}
 
 	public async getPuzzleById(id: string): Promise<Puzzle | null> {

@@ -11,8 +11,7 @@ export class PuzzleController {
 			const options: PuzzleSearchOptions = {
 				filters: req.body.filters,
 				sort: req.body.sort,
-				page: req.body.page,
-				pageSize: req.body.pageSize,
+				pagination: req.body.pagination,
 			};
 
 			const result = await this.puzzleService.searchPuzzles(options);
