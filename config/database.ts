@@ -1,4 +1,6 @@
-import knex, { type Knex } from "knex";
+import type { Knex } from "knex";
+
+import knex from "knex";
 import path from "path";
 
 export function createKnexConfig(): Knex.Config {

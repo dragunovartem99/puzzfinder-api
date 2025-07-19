@@ -1,6 +1,9 @@
-import { type Knex } from "knex";
+import type { Knex } from "knex";
 
-type PaginationOptions = { page?: number; limit?: number };
+type PaginationOptions = {
+	page: number;
+	limit: number;
+};
 
 type PaginationMeta = {
 	page: number;

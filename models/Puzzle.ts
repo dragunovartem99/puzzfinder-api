@@ -1,4 +1,4 @@
-import { PuzzleTheme, ThemeKey } from "./Theme";
+import type { PuzzleTheme, ThemeKey } from "./Theme.ts";
 
 export type BasePuzzle = {
 	puzzleId: string;

@@ -1,6 +1,7 @@
-import { PuzzleRepository } from "../repositories/PuzzleRepository.ts";
 import type { Puzzle, PaginatedPuzzles } from "../models/Puzzle.ts";
 import type { PuzzleSearchOptions } from "../models/PuzzleFilter.ts";
+
+import { PuzzleRepository } from "../repositories/PuzzleRepository.ts";
 
 export class PuzzleService {
 	constructor(private puzzleRepository: PuzzleRepository) {}

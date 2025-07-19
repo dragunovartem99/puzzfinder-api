@@ -1,4 +1,4 @@
-import { BasePuzzle } from "./Puzzle";
+import type { BasePuzzle } from "./Puzzle.ts";
 
 type SortOrder = "asc" | "desc";
 
