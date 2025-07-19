@@ -14,7 +14,7 @@ export class PuzzleRepository {
 	}
 
 	public async searchPuzzles(options: PuzzleSearchOptions): Promise<PaginatedPuzzles> {
-		const query: Knex.QueryBuilder = this.queryBuilder<Puzzle>("puzzles").select("*");
+		const query = this.queryBuilder<Puzzle>("puzzles").select("*");
 
 		if (options.filters) {
 			this.applyFilters(query, options.filters);
@@ -27,8 +27,11 @@ export class PuzzleRepository {
 		return (await this.queryBuilder<Puzzle>("puzzles").where("puzzleId", id).first()) ?? null;
 	}
 
-	private applyFilters(query: Knex.QueryBuilder, filters: any): Knex.QueryBuilder {
-		const rangeFilters = ["rating", "movesNumber", "popularity", "nbPlays"] as const;
+	private applyFilters(
+		query: Knex.QueryBuilder,
+		filters: PuzzleSearchOptions["filters"]
+	): Knex.QueryBuilder {
+		const rangeFilters = ["rating", "movesNumber", "popularity", "nbPlays"];
 
 		rangeFilters.forEach((key) => {
 			const filter = filters[key];
@@ -41,6 +44,10 @@ export class PuzzleRepository {
 				if (filter.min !== undefined) query.where(key, ">=", filter.min);
 				if (filter.max !== undefined) query.where(key, "<=", filter.max);
 			}
+		});
+
+		filters.themes?.forEach((key) => {
+			query.where(`theme_${key}`, "=", 1);
 		});
 
 		return query;
