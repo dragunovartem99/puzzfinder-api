@@ -20,21 +20,25 @@
 	"type": "module",
 	"main": "index.js",
 	"scripts": {
-		"start": "pm2 start ecosystem.config.js",
-		"dev": "nodemon index.js",
+		"dev": "nodemon --watch . --ext ts --exec node --experimental-transform-types index.ts",
 		"flow": "flow",
 		"format": "prettier . --write",
+		"start": "pm2 start ecosystem.config.js",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"prettier": "@dragunovartem99/prettier-config",
 	"dependencies": {
 		"better-sqlite3": "^11.9.1",
 		"cors": "^2.8.5",
-		"express": "^4.21.2"
+		"express": "^4.21.2",
+		"knex": "^3.1.0"
 	},
 	"devDependencies": {
 		"@dragunovartem99/flow": "^0.1.1",
 		"@dragunovartem99/prettier-config": "^1.2.0",
-		"nodemon": "^3.1.9"
+		"@types/cors": "^2.8.19",
+		"@types/express": "^5.0.3",
+		"@types/node": "^24.0.14",
+		"typescript": "^5.8.3"
 	}
 }
