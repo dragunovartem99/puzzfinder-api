@@ -20,6 +20,10 @@ export class PuzzleRepository {
 			this.applyFilters(query, options.filters);
 		}
 
+		if (options.sort) {
+			this.applySorting(query, options.sort);
+		}
+
 		return paginateQuery<Puzzle>(query, options.pagination);
 	}
 
@@ -49,6 +53,19 @@ export class PuzzleRepository {
 		filters.themes?.forEach((key) => {
 			query.where(`theme_${key}`, "=", 1);
 		});
+
+		return query;
+	}
+
+	private applySorting(
+		query: Knex.QueryBuilder,
+		sort: PuzzleSearchOptions["sort"]
+	): Knex.QueryBuilder {
+		const validSortFields = ["rating", "movesNumber", "popularity", "nbPlays", "puzzleId"];
+
+		if (sort.field && validSortFields.includes(sort.field)) {
+			query.orderBy(sort.field, sort.order);
+		}
 
 		return query;
 	}
