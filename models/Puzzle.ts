@@ -1,21 +1,23 @@
-export interface Puzzle {
+export type Puzzle = {
 	puzzleId: string;
 	fen: string;
 	moves: string;
-
 	movesNumber: number;
 	rating: number;
 	ratingDeviation: number;
 	popularity: number;
 	nbPlays: number;
-
+	themes: string[];
 	gameUrl: string;
-	openingTags: string;
-}
+	openingTags?: string;
+};
 
-export interface PaginatedPuzzles {
+export type PaginatedPuzzles = {
 	data: Puzzle[];
-	total: number;
-	page: number;
-	pageSize: number;
-}
+	pagination: {
+		page: number;
+		limit: number;
+		total: number;
+		totalPages: number;
+	};
+};

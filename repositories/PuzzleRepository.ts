@@ -23,8 +23,8 @@ export class PuzzleRepository {
 		}
 
 		// Pagination logic remains the same
-		const page = options.page || 1;
-		const limit = options.limit || 10;
+		const page = options.pagination?.page || 1;
+		const limit = options.pagination?.limit || 10;
 		const offset = (page - 1) * limit;
 
 		const [puzzles, totalResult] = await Promise.all([
