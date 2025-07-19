@@ -1,6 +1,8 @@
 export const apps = [
 	{
 		name: "puzzfinder-api",
-		script: "./index.js",
+		script: "./index.ts",
+		interpreter: "node",
+		interpreter_args: "--experimental-transform-types",
 	},
 ];
