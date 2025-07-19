@@ -1,4 +1,6 @@
-export type Puzzle = {
+import { PuzzleTheme, ThemeKey } from "./Theme";
+
+export type BasePuzzle = {
 	puzzleId: string;
 	fen: string;
 	moves: string;
@@ -7,10 +9,15 @@ export type Puzzle = {
 	ratingDeviation: number;
 	popularity: number;
 	nbPlays: number;
-	themes: string[];
 	gameUrl: string;
 	openingTags?: string;
 };
+
+export type DatabasePuzzle = BasePuzzle & {
+	[key in ThemeKey]: 0 | 1;
+};
+
+export type Puzzle = BasePuzzle & { themes: PuzzleTheme[] };
 
 export type PaginatedPuzzles = {
 	data: Puzzle[];

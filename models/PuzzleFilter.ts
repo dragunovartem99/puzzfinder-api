@@ -1,5 +1,13 @@
+import { BasePuzzle } from "./Puzzle";
+
 type SortOrder = "asc" | "desc";
-type RangeFilter = "rating" | "movesNumber" | "popularity" | "nbPlays";
+
+export type SortField = Extract<
+	keyof BasePuzzle,
+	"rating" | "movesNumber" | "popularity" | "nbPlays" | "puzzleId"
+>;
+
+type RangeFilter = Exclude<SortField, "puzzleId">;
 
 type NumberRange = {
 	min: number;
@@ -14,7 +22,7 @@ type PuzzleFilters = {
 export type PuzzleSearchOptions = {
 	filters: PuzzleFilters;
 	sort: {
-		field: string;
+		field: SortField;
 		order: SortOrder;
 	};
 	pagination: {

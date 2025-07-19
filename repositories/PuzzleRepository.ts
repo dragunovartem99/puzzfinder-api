@@ -1,9 +1,9 @@
-import { type Knex } from "knex";
+import type { Knex } from "knex";
+import type { Puzzle, PaginatedPuzzles, DatabasePuzzle, BasePuzzle } from "../models/Puzzle.ts";
+import type { PuzzleSearchOptions, SortField } from "../models/PuzzleFilter.ts";
+import type { PuzzleTheme, ThemeKey } from "../models/Theme.ts";
+
 import { queryBuilder } from "../config/database.ts";
-
-import type { Puzzle, PaginatedPuzzles } from "../models/Puzzle.ts";
-import type { PuzzleSearchOptions } from "../models/PuzzleFilter.ts";
-
 import { paginateQuery } from "../utils/pagination.ts";
 
 export class PuzzleRepository {
@@ -14,33 +14,25 @@ export class PuzzleRepository {
 	}
 
 	public async searchPuzzles(options: PuzzleSearchOptions): Promise<PaginatedPuzzles> {
-		const query = this.queryBuilder<Puzzle>("puzzles").select("*");
+		const query = this.queryBuilder<DatabasePuzzle>("puzzles").select("*");
 
 		if (options.filters) this.applyFilters(query, options.filters);
 		if (options.sort) this.applySorting(query, options.sort);
 
-		const { pagination, data } = await paginateQuery<Puzzle>(query, options.pagination);
+		const result = await paginateQuery<DatabasePuzzle>(query, options.pagination);
 
 		return {
-			data: data.map((puzzle) => {
-				const prefix = "theme_";
-
-				const themes = Object.keys(puzzle)
-					.filter((key) => key.startsWith(prefix) && puzzle[key] === 1)
-					.map((key) => key.slice(prefix.length));
-
-				const noThemesPuzzle = Object.fromEntries(
-					Object.entries(puzzle).filter(([key]) => !key.startsWith(prefix))
-				);
-
-				return { ...noThemesPuzzle, themes } as Puzzle;
-			}),
-			pagination,
+			data: result.data.map((puzzle) => this.remapPuzzleThemes(puzzle)),
+			pagination: result.pagination,
 		};
 	}
 
 	public async getPuzzleById(id: string): Promise<Puzzle | null> {
-		return (await this.queryBuilder<Puzzle>("puzzles").where("puzzleId", id).first()) ?? null;
+		const found = await this.queryBuilder<DatabasePuzzle>("puzzles")
+			.where("puzzleId", id)
+			.first();
+
+		return found ? this.remapPuzzleThemes(found) : null;
 	}
 
 	private applyFilters(query: Knex.QueryBuilder, filters: PuzzleSearchOptions["filters"]) {
@@ -67,12 +59,32 @@ export class PuzzleRepository {
 	}
 
 	private applySorting(query: Knex.QueryBuilder, sort: PuzzleSearchOptions["sort"]) {
-		const validSortFields = ["rating", "movesNumber", "popularity", "nbPlays", "puzzleId"];
+		const validSortFields: SortField[] = [
+			"rating",
+			"movesNumber",
+			"popularity",
+			"nbPlays",
+			"puzzleId",
+		];
 
 		if (sort.field && validSortFields.includes(sort.field)) {
 			query.orderBy(sort.field, sort.order);
 		}
 
 		return query;
+	}
+
+	private remapPuzzleThemes(puzzle: DatabasePuzzle): Puzzle {
+		const prefix = "theme_";
+
+		const themes = Object.keys(puzzle)
+			.filter((key): key is ThemeKey => key.startsWith(prefix) && puzzle[key] === 1)
+			.map((key) => key.slice(prefix.length) as PuzzleTheme);
+
+		const basePuzzle = Object.fromEntries(
+			Object.entries(puzzle).filter(([key]) => !key.startsWith(prefix))
+		) as BasePuzzle;
+
+		return { ...basePuzzle, themes };
 	}
 }
