@@ -1,21 +1,24 @@
-type NumberRange = { min: number; max: number; equals: number };
+type SortOrder = "asc" | "desc";
+type RangeFilter = "rating" | "movesNumber" | "popularity" | "nbPlays";
 
-type PuzzleFilters = {
-	rating: Partial<NumberRange>;
-	movesNumber: Partial<NumberRange>;
-	popularity: Partial<NumberRange>;
-	nbPlays: Partial<NumberRange>;
-	themes: string[];
+type NumberRange = {
+	min: number;
+	max: number;
+	equals: number;
 };
 
+type PuzzleFilters = {
+	[Filter in RangeFilter]: Partial<NumberRange>;
+} & { themes: string[] };
+
 export type PuzzleSearchOptions = {
-	filters?: PuzzleFilters;
-	sort?: {
+	filters: PuzzleFilters;
+	sort: {
 		field: string;
-		order: string;
+		order: SortOrder;
 	};
-	pagination?: {
+	pagination: {
 		page: number;
 		limit: number;
 	};
-}
+};
