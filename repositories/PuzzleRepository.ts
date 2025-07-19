@@ -1,4 +1,5 @@
-import knex, { type Knex } from "knex";
+import { type Knex } from "knex";
+import { queryBuilder } from "../config/database.ts";
 
 import type { Puzzle, PaginatedPuzzles } from "../models/Puzzle.ts";
 import type { PuzzleSearchOptions } from "../models/PuzzleFilter.ts";
@@ -6,18 +7,14 @@ import type { PuzzleSearchOptions } from "../models/PuzzleFilter.ts";
 import { paginateQuery } from "../utils/pagination.ts";
 
 export class PuzzleRepository {
-	private knex: Knex;
+	private queryBuilder: Knex;
 
-	constructor() {
-		this.knex = knex({
-			client: "better-sqlite3",
-			connection: { filename: "./db/puzzfinder.db" },
-			useNullAsDefault: true,
-		});
+	constructor(builder: Knex = queryBuilder) {
+		this.queryBuilder = builder;
 	}
 
 	public async searchPuzzles(options: PuzzleSearchOptions): Promise<PaginatedPuzzles> {
-		const query: Knex.QueryBuilder = this.knex<Puzzle>("puzzles").select("*");
+		const query: Knex.QueryBuilder = this.queryBuilder<Puzzle>("puzzles").select("*");
 
 		if (options.filters) {
 			this.applyFilters(query, options.filters);
@@ -27,7 +24,7 @@ export class PuzzleRepository {
 	}
 
 	public async getPuzzleById(id: string): Promise<Puzzle | null> {
-		return await this.knex("puzzles").where("puzzleId", id).first();
+		return (await this.queryBuilder<Puzzle>("puzzles").where("puzzleId", id).first()) ?? null;
 	}
 
 	private applyFilters(query: Knex.QueryBuilder, filters: any): Knex.QueryBuilder {

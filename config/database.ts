@@ -1,10 +1,12 @@
-import Database from "better-sqlite3";
+import knex, { type Knex } from "knex";
 import path from "path";
 
-const db = new Database(path.join("db/puzzfinder.db"), {
-	fileMustExist: true,
-});
+export function createKnexConfig(): Knex.Config {
+	return {
+		client: "better-sqlite3",
+		connection: { filename: path.join("db", "puzzfinder.db") },
+		useNullAsDefault: true,
+	};
+}
 
-db.pragma("journal_mode = WAL");
-
-export default db;
+export const queryBuilder = knex(createKnexConfig());
