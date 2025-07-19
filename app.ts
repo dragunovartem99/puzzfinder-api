@@ -2,7 +2,6 @@ import express from "express";
 import cors from "cors";
 
 import puzzleRoutes from "./routes/puzzleRoutes.ts";
-import { errorHandler } from "./middleware/errorHandler.ts";
 
 const app = express();
 
@@ -13,8 +12,5 @@ app.use(cors());
 
 // Routes
 app.use("/api", puzzleRoutes);
-
-// Error handling middleware
-app.use(errorHandler);
 
 export default app;
