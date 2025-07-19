@@ -1,70 +1,70 @@
+import knex, { type Knex } from "knex";
 import db from "../config/database.ts";
 
 import type { Puzzle, PaginatedPuzzles } from "../models/Puzzle.ts";
 import type { PuzzleSearchOptions } from "../models/PuzzleFilter.ts";
 
 export class PuzzleRepository {
-	searchPuzzles(options: PuzzleSearchOptions): PaginatedPuzzles {
-		const {
-			filter = {},
-			sort = { field: "rating", order: "desc" },
-			page = 1,
-			pageSize = 20,
-		} = options;
+	private knex: Knex;
 
-		// Base query
-		let query = "SELECT * FROM puzzles WHERE 1=1";
-		const params: any[] = [];
+	constructor() {
+		this.knex = knex({
+			client: "better-sqlite3",
+			connection: { filename: "./db/puzzfinder.db" },
+			useNullAsDefault: true,
+		});
+	}
 
-		// Apply filters
-		if (filter.themes && filter.themes.length > 0) {
-			query += " AND (";
-			filter.themes.forEach((theme, i) => {
-				query += ` themes LIKE ? ${i < filter.themes!.length - 1 ? "OR" : ""}`;
-				params.push(`%"${theme}"%`);
-			});
-			query += ")";
+	public async searchPuzzles(options: PuzzleSearchOptions): Promise<PaginatedPuzzles> {
+		const query: Knex.QueryBuilder = this.knex<Puzzle>("puzzles").select("*");
+
+		if (options.filters) {
+			this.applyFilters(query, options.filters);
 		}
 
-		if (filter.minRating) {
-			query += " AND rating >= ?";
-			params.push(filter.minRating);
-		}
+		// Pagination logic remains the same
+		const page = options.page || 1;
+		const limit = options.limit || 10;
+		const offset = (page - 1) * limit;
 
-		if (filter.maxRating) {
-			query += " AND rating <= ?";
-			params.push(filter.maxRating);
-		}
+		const [puzzles, totalResult] = await Promise.all([
+			query.clone().limit(limit).offset(offset),
+			query.clone().count("* as total").first(),
+		]);
 
-		if (filter.popularityThreshold) {
-			query += " AND popularity >= ?";
-			params.push(filter.popularityThreshold);
-		}
-
-		// Apply sorting
-		query += ` ORDER BY ${sort.field} ${sort.order}`;
-
-		// Count total results (for pagination)
-		const countQuery = query.replace("SELECT *", "SELECT COUNT(*) as total");
-		const { total } = db.prepare(countQuery).get(...params) as { total: number };
-
-		// Apply pagination
-		query += " LIMIT ? OFFSET ?";
-		params.push(pageSize, (page - 1) * pageSize);
-
-		// Execute query
-		const data = db.prepare(query).all(...params) as Puzzle[];
+		const total = Number(totalResult?.total) || 0;
 
 		return {
-			data,
-			total,
-			page,
-			pageSize,
+			data: puzzles,
+			pagination: {
+				page,
+				limit,
+				total,
+				totalPages: Math.ceil(total / limit),
+			},
 		};
 	}
 
-	getPuzzleById(id: string): Puzzle | null {
-		const stmt = db.prepare("SELECT * FROM puzzles WHERE puzzleId = ?");
-		return stmt.get(id) as Puzzle | null;
+	public async getPuzzleById(id: string): Promise<Puzzle | null> {
+		return await this.knex("puzzles").where("puzzleId", id).first();
+	}
+
+	private applyFilters(query: Knex.QueryBuilder, filters: any): Knex.QueryBuilder {
+		const rangeFilters = ["rating", "movesNumber", "popularity", "nbPlays"] as const;
+
+		rangeFilters.forEach((key) => {
+			const filter = filters[key];
+
+			if (!filter) return;
+
+			if (filter.equals !== undefined) {
+				query.where(key, filter.equals);
+			} else {
+				if (filter.min !== undefined) query.where(key, ">=", filter.min);
+				if (filter.max !== undefined) query.where(key, "<=", filter.max);
+			}
+		});
+
+		return query;
 	}
 }

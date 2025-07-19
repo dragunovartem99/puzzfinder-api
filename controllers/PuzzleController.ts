@@ -9,22 +9,23 @@ export class PuzzleController {
 	async searchPuzzles(req: Request, res: Response) {
 		try {
 			const options: PuzzleSearchOptions = {
-				filter: req.body.filter,
+				filters: req.body.filters,
 				sort: req.body.sort,
 				page: req.body.page,
 				pageSize: req.body.pageSize,
 			};
 
-			const result = this.puzzleService.searchPuzzles(options);
+			const result = await this.puzzleService.searchPuzzles(options);
 			res.json(result);
 		} catch (error) {
+			console.error(error);
 			res.status(500).json({ error: "Internal server error" });
 		}
 	}
 
 	async getPuzzleById(req: Request, res: Response) {
 		try {
-			const puzzle = this.puzzleService.getPuzzleById(req.params.id);
+			const puzzle = await this.puzzleService.getPuzzleById(req.params.id);
 			if (!puzzle) {
 				return res.status(404).json({ error: "Puzzle not found" });
 			}

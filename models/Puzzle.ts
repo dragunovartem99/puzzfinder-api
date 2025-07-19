@@ -1,12 +1,16 @@
 export interface Puzzle {
-	id: string;
+	puzzleId: string;
 	fen: string;
 	moves: string;
+
+	movesNumber: number;
 	rating: number;
 	ratingDeviation: number;
 	popularity: number;
-	themes: string;
+	nbPlays: number;
+
 	gameUrl: string;
+	openingTags: string;
 }
 
 export interface PaginatedPuzzles {

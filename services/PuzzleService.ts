@@ -5,12 +5,11 @@ import type { PuzzleSearchOptions } from "../models/PuzzleFilter.ts";
 export class PuzzleService {
 	constructor(private puzzleRepository: PuzzleRepository) {}
 
-	searchPuzzles(options: PuzzleSearchOptions): PaginatedPuzzles {
-		// Validate options here if needed
+	async searchPuzzles(options: PuzzleSearchOptions): Promise<PaginatedPuzzles> {
 		return this.puzzleRepository.searchPuzzles(options);
 	}
 
-	getPuzzleById(id: string): Puzzle | null {
+	async getPuzzleById(id: string): Promise<Puzzle | null> {
 		return this.puzzleRepository.getPuzzleById(id);
 	}
 }
