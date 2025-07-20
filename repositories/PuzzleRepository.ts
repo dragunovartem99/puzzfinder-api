@@ -1,7 +1,7 @@
 import type { Knex } from "knex";
 import type { Puzzle, PaginatedPuzzles, DatabasePuzzle, BasePuzzle } from "../models/Puzzle.ts";
 import type { PuzzleSearchOptions, SortField } from "../models/PuzzleFilter.ts";
-import type { PuzzleTheme, ThemeKey } from "../models/Theme.ts";
+import type { PuzzleTheme } from "../models/Theme.ts";
 
 import { queryBuilder } from "../config/database.ts";
 import { paginateQuery } from "../utils/pagination.ts";
@@ -77,8 +77,8 @@ export class PuzzleRepository {
 	private remapPuzzleThemes(puzzle: DatabasePuzzle): Puzzle {
 		const prefix = "theme_";
 
-		const themes = Object.keys(puzzle)
-			.filter((key): key is ThemeKey => key.startsWith(prefix) && puzzle[key] === 1)
+		const themes: PuzzleTheme[] = Object.keys(puzzle)
+			.filter((key) => key.startsWith(prefix) && puzzle[key] === 1)
 			.map((key) => key.slice(prefix.length) as PuzzleTheme);
 
 		const basePuzzle = Object.fromEntries(
