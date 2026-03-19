@@ -3,10 +3,9 @@ services:
     container_name: puzzfinder-api
     image: puzzfinder-api
     build: .
+    env_file: .env
     ports:
-      - "50000:50000"
+      - "${PORT}:${PORT}"
     volumes:
-      - ../puzzfinder-db:/app/db
-    environment:
-      - DB_PATH=/app/db/puzzfinder.db
+      - ../puzzfinder-db/puzzfinder.db:/app/puzzfinder.db
     restart: unless-stopped

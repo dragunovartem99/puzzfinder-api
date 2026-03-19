@@ -1,5 +1,4 @@
 import type { Knex } from "knex";
-import { DEFAULT_PAGINATION } from "../config/pagination.ts";
 
 export type PaginationOptions = {
 	page: number;
@@ -16,6 +15,11 @@ type PaginationMeta = {
 type PaginatedResult<T> = {
 	data: T[];
 	pagination: PaginationMeta;
+};
+
+const DEFAULT_PAGINATION: PaginationOptions = {
+	page: 1,
+	limit: 10,
 };
 
 export async function paginateQuery<T>(
