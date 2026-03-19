@@ -1,4 +1,0 @@
-[submodule "db"]
-	path = db
-	url = git@github.com:dragunovartem99/puzzfinder-db.git
-	branch = main
