@@ -4,7 +4,11 @@ import type { PuzzleSearchOptions } from "../models/PuzzleFilter.ts";
 import { PuzzleService } from "../services/PuzzleService.ts";
 
 export class PuzzleController {
-	constructor(private puzzleService: PuzzleService) {}
+	#puzzleService: PuzzleService;
+
+	constructor(puzzleService: PuzzleService) {
+		this.#puzzleService = puzzleService;
+	}
 
 	async searchPuzzles(req: Request, res: Response) {
 		try {
@@ -14,7 +18,7 @@ export class PuzzleController {
 				pagination: req.body.pagination,
 			};
 
-			const result = await this.puzzleService.searchPuzzles(options);
+			const result = await this.#puzzleService.searchPuzzles(options);
 			res.json(result);
 		} catch (error) {
 			console.error(error);
@@ -24,7 +28,7 @@ export class PuzzleController {
 
 	async getPuzzleById(req: Request, res: Response) {
 		try {
-			const puzzle = await this.puzzleService.getPuzzleById(req.params.id);
+			const puzzle = await this.#puzzleService.getPuzzleById(req.params.id);
 			if (!puzzle) {
 				return res.status(404).json({ error: "Puzzle not found" });
 			}
