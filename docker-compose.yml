@@ -2,11 +2,11 @@ services:
   puzzfinder:
     container_name: puzzfinder-api
     image: puzzfinder-api
-    build:
-      context: .
-      network: host
+    build: .
     ports:
       - "50000:50000"
     volumes:
       - ../puzzfinder-db:/app/db
+    environment:
+      - DB_PATH=/app/db/puzzfinder.db
     restart: unless-stopped
