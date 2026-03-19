@@ -7,5 +7,5 @@ services:
     ports:
       - "${PORT}:${PORT}"
     volumes:
-      - ${DB_HOST_PATH}:/app/puzzfinder.db
+      - ${DB_HOST_PATH}:${DB_PATH}
     restart: unless-stopped
