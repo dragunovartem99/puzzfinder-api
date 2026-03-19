@@ -1,0 +1,12 @@
+services:
+  puzzfinder:
+    container_name: puzzfinder-api
+    image: puzzfinder-api
+    build:
+      context: .
+      network: host
+    ports:
+      - "50000:50000"
+    volumes:
+      - ../puzzfinder-db:/app/db
+    restart: unless-stopped

@@ -6,7 +6,7 @@ import path from "path";
 export function createKnexConfig(): Knex.Config {
 	return {
 		client: "better-sqlite3",
-		connection: { filename: path.join("db", "puzzfinder.db") },
+		connection: { filename: path.join("..", "puzzfinder-db", "puzzfinder.db") },
 		useNullAsDefault: true,
 	};
 }

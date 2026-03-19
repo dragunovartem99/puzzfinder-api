@@ -20,17 +20,17 @@
 	"type": "module",
 	"main": "index.js",
 	"scripts": {
-		"dev": "nodemon --watch . --ext ts --exec node --experimental-transform-types index.ts",
+		"dev": "node --watch --experimental-transform-types index.ts",
 		"flow": "flow",
 		"format": "prettier . --write",
-		"start": "pm2 start ecosystem.config.js",
+		"start": "node --experimental-transform-types index.ts",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"prettier": "@dragunovartem99/prettier-config",
 	"dependencies": {
-		"better-sqlite3": "^11.9.1",
+		"better-sqlite3": "^12.8.0",
 		"cors": "^2.8.5",
-		"express": "^4.21.2",
+		"express": "^5.2.1",
 		"knex": "^3.1.0"
 	},
 	"devDependencies": {
