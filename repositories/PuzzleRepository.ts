@@ -57,14 +57,14 @@ export class PuzzleRepository {
 			let maskB = 0n;
 
 			for (const theme of filters.themes) {
-				const index = THEME_ORDER.indexOf(theme as typeof THEME_ORDER[number]);
+				const index = THEME_ORDER.indexOf(theme as (typeof THEME_ORDER)[number]);
 				if (index === -1) continue;
 				if (index < 63) maskA |= 1n << BigInt(index);
 				else maskB |= 1n << BigInt(index - 63);
 			}
 
-			if (maskA) query.whereRaw('(theme_bits_a & ?) = ?', [maskA, maskA]);
-			if (maskB) query.whereRaw('(theme_bits_b & ?) = ?', [maskB, maskB]);
+			if (maskA) query.whereRaw("(theme_bits_a & ?) = ?", [maskA, maskA]);
+			if (maskB) query.whereRaw("(theme_bits_b & ?) = ?", [maskB, maskB]);
 		}
 
 		return query;

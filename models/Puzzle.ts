@@ -1,4 +1,4 @@
-import type { PuzzleTheme, ThemeKey } from "./Theme.ts";
+import type { PuzzleTheme } from "./Theme.ts";
 
 export type BasePuzzle = {
 	puzzleId: string;
@@ -14,7 +14,8 @@ export type BasePuzzle = {
 };
 
 export type DatabasePuzzle = BasePuzzle & {
-	[key in ThemeKey]: 0 | 1;
+	theme_bits_a: number;
+	theme_bits_b: number;
 };
 
 export type Puzzle = BasePuzzle & { themes: PuzzleTheme[] };

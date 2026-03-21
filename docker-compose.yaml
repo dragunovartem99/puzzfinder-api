@@ -1,0 +1,11 @@
+services:
+    puzzfinder:
+        container_name: puzzfinder-api
+        image: puzzfinder-api
+        build: .
+        env_file: .env
+        ports:
+            - "${PORT}:${PORT}"
+        volumes:
+            - ${DB_HOST_PATH}:${DB_PATH}
+        restart: unless-stopped

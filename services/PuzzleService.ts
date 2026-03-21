@@ -5,7 +5,7 @@ import { PuzzleRepository } from "../repositories/PuzzleRepository.ts";
 
 export class PuzzleService {
 	#puzzleRepository: PuzzleRepository;
-	
+
 	constructor(puzzleRepository: PuzzleRepository) {
 		this.#puzzleRepository = puzzleRepository;
 	}
