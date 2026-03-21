@@ -5,6 +5,7 @@ import type { PuzzleTheme } from "../models/Theme.ts";
 
 import { queryBuilder } from "../config/database.ts";
 import { paginateQuery } from "../utils/pagination.ts";
+import { THEME_ORDER } from "../constants/theme-order.ts";
 
 export class PuzzleRepository {
 	private queryBuilder: Knex;
@@ -51,9 +52,20 @@ export class PuzzleRepository {
 			}
 		});
 
-		filters.themes?.forEach((key) => {
-			query.where(`theme_${key}`, "=", 1);
-		});
+		if (filters.themes?.length) {
+			let maskA = 0n;
+			let maskB = 0n;
+
+			for (const theme of filters.themes) {
+				const index = THEME_ORDER.indexOf(theme as typeof THEME_ORDER[number]);
+				if (index === -1) continue;
+				if (index < 63) maskA |= 1n << BigInt(index);
+				else maskB |= 1n << BigInt(index - 63);
+			}
+
+			if (maskA) query.whereRaw('(theme_bits_a & ?) = ?', [maskA, maskA]);
+			if (maskB) query.whereRaw('(theme_bits_b & ?) = ?', [maskB, maskB]);
+		}
 
 		return query;
 	}
@@ -75,15 +87,15 @@ export class PuzzleRepository {
 	}
 
 	private remapPuzzleThemes(puzzle: DatabasePuzzle): Puzzle {
-		const prefix = "theme_";
+		const bitsA = BigInt(puzzle.theme_bits_a);
+		const bitsB = BigInt(puzzle.theme_bits_b);
 
-		const themes: PuzzleTheme[] = Object.keys(puzzle)
-			.filter((key) => key.startsWith(prefix) && puzzle[key] === 1)
-			.map((key) => key.slice(prefix.length) as PuzzleTheme);
+		const themes: PuzzleTheme[] = [
+			...THEME_ORDER.slice(0, 63).filter((_, i) => (bitsA >> BigInt(i)) & 1n),
+			...THEME_ORDER.slice(63).filter((_, i) => (bitsB >> BigInt(i)) & 1n),
+		];
 
-		const basePuzzle = Object.fromEntries(
-			Object.entries(puzzle).filter(([key]) => !key.startsWith(prefix))
-		) as BasePuzzle;
+		const { theme_bits_a, theme_bits_b, ...basePuzzle } = puzzle;
 
 		return { ...basePuzzle, themes };
 	}
