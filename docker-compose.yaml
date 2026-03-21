@@ -9,3 +9,22 @@ services:
         volumes:
             - ${DB_HOST_PATH}:${DB_PATH}
         restart: unless-stopped
+        labels:
+            caddy: puzzfinder.99x.space
+            caddy.reverse_proxy: "{{upstreams ${PORT}}}"
+
+    caddy:
+        image: lucaslorentz/caddy-docker-proxy:alpine
+        container_name: puzzfinder-caddy
+        profiles:
+            - caddy
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+            - caddy_data:/data
+        restart: unless-stopped
+
+volumes:
+    caddy_data:
