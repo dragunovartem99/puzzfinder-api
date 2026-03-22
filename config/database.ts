@@ -1,13 +1,10 @@
-import type { Knex } from "knex";
+import { DuckDBInstance } from "@duckdb/node-api";
 
-import knex from "knex";
+let instance: DuckDBInstance | null = null;
 
-export function createKnexConfig(): Knex.Config {
-	return {
-		client: "better-sqlite3",
-		connection: { filename: process.env.DB_PATH || "" },
-		useNullAsDefault: true,
-	};
+export async function getConnection() {
+	if (!instance) {
+		instance = await DuckDBInstance.create(process.env.DB_PATH || "");
+	}
+	return instance.connect();
 }
-
-export const queryBuilder = knex(createKnexConfig());

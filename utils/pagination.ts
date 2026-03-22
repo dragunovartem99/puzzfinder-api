@@ -1,4 +1,4 @@
-import type { Knex } from "knex";
+import type { DuckDBConnection } from "@duckdb/node-api";
 
 export type PaginationOptions = {
 	page: number;
@@ -23,22 +23,24 @@ const DEFAULT_PAGINATION: PaginationOptions = {
 };
 
 export async function paginateQuery<T>(
-	query: Knex.QueryBuilder,
+	conn: DuckDBConnection,
+	sql: string,
+	params: unknown[],
 	options?: PaginationOptions
 ): Promise<PaginatedResult<T>> {
 	const { page, limit } = { ...DEFAULT_PAGINATION, ...options };
 	const offset = (page - 1) * limit;
 
-	const [data, totalResult] = await Promise.all([
-		query.clone().limit(limit).offset(offset),
-		query.clone().count("* as total").first(),
+	const [dataResult, countResult] = await Promise.all([
+		conn.runAndReadAll(`${sql} LIMIT ? OFFSET ?`, [...params, limit, offset]),
+		conn.runAndReadAll(`SELECT COUNT(*) as total FROM (${sql}) t`, params),
 	]);
 
-	const total = Number(totalResult.total);
-	const totalPages = Math.ceil(total / limit);
+	const data = dataResult.getRowObjects() as T[];
+	const total = Number((countResult.getRowObjects()[0] as { total: bigint }).total);
 
 	return {
 		data,
-		pagination: { page, limit, total, totalPages },
+		pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
 	};
 }

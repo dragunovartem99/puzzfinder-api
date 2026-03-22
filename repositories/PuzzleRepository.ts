@@ -1,76 +1,58 @@
-import type { Knex } from "knex";
-import type { Puzzle, PaginatedPuzzles, DatabasePuzzle, BasePuzzle } from "../models/Puzzle.ts";
+import type { Puzzle, PaginatedPuzzles } from "../models/Puzzle.ts";
 import type { PuzzleSearchOptions, SortField } from "../models/PuzzleFilter.ts";
-import type { PuzzleTheme } from "../models/Theme.ts";
 
-import { queryBuilder } from "../config/database.ts";
+import { getConnection } from "../config/database.ts";
 import { paginateQuery } from "../utils/pagination.ts";
-import { THEME_ORDER } from "../constants/theme-order.ts";
 
 export class PuzzleRepository {
-	private queryBuilder: Knex;
-
-	constructor(builder: Knex = queryBuilder) {
-		this.queryBuilder = builder;
-	}
-
 	public async searchPuzzles(options: PuzzleSearchOptions): Promise<PaginatedPuzzles> {
-		const query = this.queryBuilder<DatabasePuzzle>("puzzles").select("*");
-
-		if (options.filters) this.applyFilters(query, options.filters);
-		if (options.sort) this.applySorting(query, options.sort);
-
-		const result = await paginateQuery<DatabasePuzzle>(query, options.pagination);
-
-		return {
-			data: result.data.map((puzzle) => this.remapPuzzleThemes(puzzle)),
-			pagination: result.pagination,
-		};
+		const conn = await getConnection();
+		const { sql, params } = this.buildQuery(options);
+		return paginateQuery<Puzzle>(conn, sql, params, options.pagination);
 	}
 
 	public async getPuzzleById(id: string): Promise<Puzzle | null> {
-		const found = await this.queryBuilder<DatabasePuzzle>("puzzles")
-			.where("puzzleId", id)
-			.first();
-
-		return found ? this.remapPuzzleThemes(found) : null;
+		const conn = await getConnection();
+		const result = await conn.runAndReadAll(
+			"SELECT * FROM puzzles WHERE puzzleId = ?",
+			[id]
+		);
+		const rows = result.getRowObjects() as Puzzle[];
+		return rows[0] ?? null;
 	}
 
-	private applyFilters(query: Knex.QueryBuilder, filters: PuzzleSearchOptions["filters"]) {
-		const rangeFilters = ["rating", "movesNumber", "popularity", "nbPlays"];
+	private buildQuery(options: PuzzleSearchOptions): { sql: string; params: unknown[] } {
+		const conditions: string[] = [];
+		const params: unknown[] = [];
 
-		rangeFilters.forEach((key) => {
-			const filter = filters[key];
-
-			if (!filter) return;
-
+		const rangeFilters = ["rating", "movesNumber", "popularity", "nbPlays"] as const;
+		for (const key of rangeFilters) {
+			const filter = options.filters?.[key];
+			if (!filter) continue;
 			if (filter.equals !== undefined) {
-				query.where(key, filter.equals);
+				conditions.push(`${key} = ?`);
+				params.push(filter.equals);
 			} else {
-				if (filter.min !== undefined) query.where(key, ">=", filter.min);
-				if (filter.max !== undefined) query.where(key, "<=", filter.max);
+				if (filter.min !== undefined) {
+					conditions.push(`${key} >= ?`);
+					params.push(filter.min);
+				}
+				if (filter.max !== undefined) {
+					conditions.push(`${key} <= ?`);
+					params.push(filter.max);
+				}
 			}
-		});
-
-		if (filters.themes?.length) {
-			let maskA = 0n;
-			let maskB = 0n;
-
-			for (const theme of filters.themes) {
-				const index = THEME_ORDER.indexOf(theme as (typeof THEME_ORDER)[number]);
-				if (index === -1) continue;
-				if (index < 63) maskA |= 1n << BigInt(index);
-				else maskB |= 1n << BigInt(index - 63);
-			}
-
-			if (maskA) query.whereRaw("(theme_bits_a & ?) = ?", [maskA, maskA]);
-			if (maskB) query.whereRaw("(theme_bits_b & ?) = ?", [maskB, maskB]);
 		}
 
-		return query;
-	}
+		if (options.filters?.themes?.length) {
+			for (const theme of options.filters.themes) {
+				conditions.push("list_contains(themes, ?)");
+				params.push(theme);
+			}
+		}
 
-	private applySorting(query: Knex.QueryBuilder, sort: PuzzleSearchOptions["sort"]) {
+		const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+
 		const validSortFields: SortField[] = [
 			"rating",
 			"movesNumber",
@@ -78,25 +60,12 @@ export class PuzzleRepository {
 			"nbPlays",
 			"puzzleId",
 		];
+		const sort = options.sort;
+		const orderBy =
+			sort?.field && validSortFields.includes(sort.field)
+				? `ORDER BY ${sort.field} ${sort.order === "desc" ? "DESC" : "ASC"}`
+				: "";
 
-		if (sort.field && validSortFields.includes(sort.field)) {
-			query.orderBy(sort.field, sort.order);
-		}
-
-		return query;
-	}
-
-	private remapPuzzleThemes(puzzle: DatabasePuzzle): Puzzle {
-		const bitsA = BigInt(puzzle.theme_bits_a);
-		const bitsB = BigInt(puzzle.theme_bits_b);
-
-		const themes: PuzzleTheme[] = [
-			...THEME_ORDER.slice(0, 63).filter((_, i) => (bitsA >> BigInt(i)) & 1n),
-			...THEME_ORDER.slice(63).filter((_, i) => (bitsB >> BigInt(i)) & 1n),
-		];
-
-		const { theme_bits_a, theme_bits_b, ...basePuzzle } = puzzle;
-
-		return { ...basePuzzle, themes };
+		return { sql: `SELECT * FROM puzzles ${where} ${orderBy}`, params };
 	}
 }

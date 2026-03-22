@@ -13,11 +13,6 @@ export type BasePuzzle = {
 	openingTags?: string;
 };
 
-export type DatabasePuzzle = BasePuzzle & {
-	theme_bits_a: number;
-	theme_bits_b: number;
-};
-
 export type Puzzle = BasePuzzle & { themes: PuzzleTheme[] };
 
 export type PaginatedPuzzles = {
