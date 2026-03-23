@@ -1,14 +1,20 @@
-import type { Puzzle, PaginatedPuzzles } from "../models/Puzzle.ts";
+import type { Puzzle, DatabasePuzzle, PaginatedPuzzles } from "../models/Puzzle.ts";
 import type { PuzzleSearchOptions, SortField } from "../models/PuzzleFilter.ts";
 
 import { getConnection } from "../config/database.ts";
 import { paginateQuery } from "../utils/pagination.ts";
+import { decodeThemes, encodeThemes } from "../utils/themes.ts";
+
+function toPublic({ theme_mask, ...rest }: DatabasePuzzle): Puzzle {
+	return { ...rest, themes: decodeThemes(theme_mask) };
+}
 
 export class PuzzleRepository {
 	public async searchPuzzles(options: PuzzleSearchOptions): Promise<PaginatedPuzzles> {
 		const conn = await getConnection();
 		const { sql, params } = this.buildQuery(options);
-		return paginateQuery<Puzzle>(conn, sql, params, options.pagination);
+		const result = await paginateQuery<DatabasePuzzle>(conn, sql, params, options.pagination);
+		return { ...result, data: result.data.map(toPublic) };
 	}
 
 	public async getPuzzleById(id: string): Promise<Puzzle | null> {
@@ -17,8 +23,8 @@ export class PuzzleRepository {
 			"SELECT * FROM puzzles WHERE puzzleId = ?",
 			[id]
 		);
-		const rows = result.getRowObjects() as Puzzle[];
-		return rows[0] ?? null;
+		const rows = result.getRowObjects() as DatabasePuzzle[];
+		return rows[0] ? toPublic(rows[0]) : null;
 	}
 
 	private buildQuery(options: PuzzleSearchOptions): { sql: string; params: unknown[] } {
@@ -45,9 +51,9 @@ export class PuzzleRepository {
 		}
 
 		if (options.filters?.themes?.length) {
-			for (const theme of options.filters.themes) {
-				conditions.push("list_contains(themes, ?)");
-				params.push(theme);
+			const mask = encodeThemes(options.filters.themes);
+			if (mask !== 0n) {
+				conditions.push(`(theme_mask & ${mask}::HUGEINT) = ${mask}::HUGEINT`);
 			}
 		}
 

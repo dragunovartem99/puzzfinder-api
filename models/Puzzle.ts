@@ -13,6 +13,8 @@ export type BasePuzzle = {
 	openingTags?: string;
 };
 
+export type DatabasePuzzle = BasePuzzle & { theme_mask: bigint };
+
 export type Puzzle = BasePuzzle & { themes: PuzzleTheme[] };
 
 export type PaginatedPuzzles = {
