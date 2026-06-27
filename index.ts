@@ -1,6 +1,6 @@
 import app from "./app.ts";
+import { initCache } from "./config/cache.ts";
 import { PORT } from "./config/server.ts";
-import { initCache } from "./config/database.ts";
 
 await initCache();
 

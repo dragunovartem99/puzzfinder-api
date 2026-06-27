@@ -1,9 +1,6 @@
-import { createHash } from "node:crypto";
-
+import { getConnection } from "../config/database.ts";
 import type { Puzzle, DatabasePuzzle, PaginatedPuzzles } from "../models/Puzzle.ts";
 import type { PuzzleSearchOptions, SortField } from "../models/PuzzleFilter.ts";
-
-import { getConnection, getCacheConnection } from "../config/database.ts";
 import { paginateQuery } from "../utils/pagination.ts";
 import { decodeThemes, encodeThemes } from "../utils/themes.ts";
 
@@ -13,38 +10,10 @@ function toPublic({ theme_mask, ...rest }: DatabasePuzzle): Puzzle {
 
 export class PuzzleRepository {
 	public async searchPuzzles(options: PuzzleSearchOptions): Promise<PaginatedPuzzles> {
-		const cached = await this.getCached(options);
-		if (cached) return cached;
-
 		const conn = await getConnection();
 		const { sql, params } = this.buildQuery(options);
 		const result = await paginateQuery<DatabasePuzzle>(conn, sql, params, options.pagination);
-		const paginated: PaginatedPuzzles = { ...result, data: result.data.map(toPublic) };
-
-		await this.setCached(options, paginated);
-		return paginated;
-	}
-
-	private cacheKey(options: PuzzleSearchOptions): string {
-		return createHash("sha256").update(JSON.stringify(options)).digest("hex");
-	}
-
-	private async getCached(options: PuzzleSearchOptions): Promise<PaginatedPuzzles | null> {
-		const conn = await getCacheConnection();
-		const result = await conn.runAndReadAll(
-			"SELECT data FROM search_cache WHERE cache_key = ?",
-			[this.cacheKey(options)]
-		);
-		const row = (result.getRowObjects() as { data: string }[])[0];
-		return row ? (JSON.parse(row.data) as PaginatedPuzzles) : null;
-	}
-
-	private async setCached(options: PuzzleSearchOptions, data: PaginatedPuzzles): Promise<void> {
-		const conn = await getCacheConnection();
-		await conn.run("INSERT INTO search_cache (cache_key, data) VALUES (?, ?)", [
-			this.cacheKey(options),
-			JSON.stringify(data),
-		]);
+		return { ...result, data: result.data.map(toPublic) };
 	}
 
 	public async getPuzzleById(id: string): Promise<Puzzle | null> {

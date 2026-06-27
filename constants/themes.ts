@@ -1,6 +1,4 @@
-import type { PuzzleTheme } from "../models/Theme.ts";
-
-export const THEMES: PuzzleTheme[] = [
+export const THEMES = [
 	"advancedPawn",
 	"advantage",
 	"anastasiaMate",
@@ -73,4 +71,4 @@ export const THEMES: PuzzleTheme[] = [
 	"veryLong",
 	"xRayAttack",
 	"zugzwang",
-];
+] as const;

@@ -1,20 +1,29 @@
+import { createHash } from "node:crypto";
+
+import { getCache, setCache } from "../config/cache.ts";
 import type { Puzzle, PaginatedPuzzles } from "../models/Puzzle.ts";
 import type { PuzzleSearchOptions } from "../models/PuzzleFilter.ts";
-
 import { PuzzleRepository } from "../repositories/PuzzleRepository.ts";
 
 export class PuzzleService {
-	#puzzleRepository: PuzzleRepository;
+	#repository: PuzzleRepository;
 
-	constructor(puzzleRepository: PuzzleRepository) {
-		this.#puzzleRepository = puzzleRepository;
+	constructor(repository: PuzzleRepository) {
+		this.#repository = repository;
 	}
 
 	async searchPuzzles(options: PuzzleSearchOptions): Promise<PaginatedPuzzles> {
-		return this.#puzzleRepository.searchPuzzles(options);
+		const key = createHash("sha256").update(JSON.stringify(options)).digest("hex");
+
+		const cached = await getCache<PaginatedPuzzles>(key);
+		if (cached) return cached;
+
+		const result = await this.#repository.searchPuzzles(options);
+		await setCache(key, result);
+		return result;
 	}
 
 	async getPuzzleById(id: string): Promise<Puzzle | null> {
-		return this.#puzzleRepository.getPuzzleById(id);
+		return this.#repository.getPuzzleById(id);
 	}
 }

@@ -1,6 +1,5 @@
-import type { PuzzleTheme } from "../models/Theme.ts";
-
 import { THEMES } from "../constants/themes.ts";
+import type { PuzzleTheme } from "../models/Theme.ts";
 
 export function decodeThemes(theme_mask: bigint): PuzzleTheme[] {
 	return THEMES.filter((_, i) => (theme_mask & (1n << BigInt(i))) !== 0n);

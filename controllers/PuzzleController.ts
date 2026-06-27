@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
-import type { PuzzleSearchOptions } from "../models/PuzzleFilter.ts";
 
+import type { PuzzleSearchOptions } from "../models/PuzzleFilter.ts";
 import { PuzzleService } from "../services/PuzzleService.ts";
 
 export class PuzzleController {

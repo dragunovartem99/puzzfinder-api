@@ -22,13 +22,16 @@ const DEFAULT_PAGINATION: PaginationOptions = {
 	limit: 10,
 };
 
+const MAX_LIMIT = 100;
+
 export async function paginateQuery<T>(
 	conn: DuckDBConnection,
 	sql: string,
 	params: unknown[],
 	options?: PaginationOptions
 ): Promise<PaginatedResult<T>> {
-	const { page, limit } = { ...DEFAULT_PAGINATION, ...options };
+	const { page, limit: rawLimit } = { ...DEFAULT_PAGINATION, ...options };
+	const limit = Math.min(rawLimit, MAX_LIMIT);
 	const offset = (page - 1) * limit;
 
 	const [dataResult, countResult] = await Promise.all([
