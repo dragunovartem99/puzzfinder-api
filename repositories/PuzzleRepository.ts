@@ -1,4 +1,4 @@
-import { getConnection } from "../config/database.ts";
+import { getDatabaseConnection } from "../config/database.ts";
 import type { Puzzle, DatabasePuzzle, PaginatedPuzzles } from "../models/Puzzle.ts";
 import type { PuzzleSearchOptions, SortField } from "../models/PuzzleFilter.ts";
 import { paginateQuery } from "../utils/pagination.ts";
@@ -10,14 +10,14 @@ function toPublic({ theme_mask, ...rest }: DatabasePuzzle): Puzzle {
 
 export class PuzzleRepository {
 	public async searchPuzzles(options: PuzzleSearchOptions): Promise<PaginatedPuzzles> {
-		const conn = await getConnection();
+		const conn = await getDatabaseConnection();
 		const { sql, params } = this.buildQuery(options);
 		const result = await paginateQuery<DatabasePuzzle>(conn, sql, params, options.pagination);
 		return { ...result, data: result.data.map(toPublic) };
 	}
 
 	public async getPuzzleById(id: string): Promise<Puzzle | null> {
-		const conn = await getConnection();
+		const conn = await getDatabaseConnection();
 		const result = await conn.runAndReadAll("SELECT * FROM puzzles WHERE puzzleId = ?", [id]);
 		const rows = result.getRowObjects() as DatabasePuzzle[];
 		return rows[0] ? toPublic(rows[0]) : null;
