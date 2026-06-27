@@ -5,22 +5,21 @@ let cacheInstance: DuckDBInstance | null = null;
 
 export async function getConnection() {
 	if (!instance) {
-		instance = await DuckDBInstance.create(process.env.DB_PATH || "");
+		instance = await DuckDBInstance.create("/app/puzzfinder.db");
 	}
 	return instance.connect();
 }
 
 export async function getCacheConnection() {
 	if (!cacheInstance) {
-		cacheInstance = await DuckDBInstance.create(process.env.CACHE_DB_PATH || "cache.db");
+		cacheInstance = await DuckDBInstance.create("cache.db");
 	}
 	return cacheInstance.connect();
 }
 
 export async function initCache() {
 	const conn = await getCacheConnection();
-	await conn.run("DROP TABLE IF EXISTS search_cache");
 	await conn.run(
-		"CREATE TABLE search_cache (cache_key VARCHAR PRIMARY KEY, data VARCHAR NOT NULL)"
+		"CREATE TABLE IF NOT EXISTS search_cache (cache_key VARCHAR PRIMARY KEY, data VARCHAR NOT NULL)"
 	);
 }
