@@ -24,6 +24,9 @@
 		"flow": "flow",
 		"format": "oxfmt --write",
 		"format:check": "oxfmt --check",
+		"lint": "oxlint --fix",
+		"lint:check": "oxlint",
+		"prepare": "husky",
 		"start": "node index.ts",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
@@ -35,9 +38,11 @@
 	"devDependencies": {
 		"@dragunovartem99/flow": "^0.1.1",
 		"@dragunovartem99/oxfmt-config": "^2.1.0",
+		"@dragunovartem99/oxlint-config": "^2.0.0",
 		"@types/cors": "^2.8.19",
 		"@types/express": "^5.0.3",
 		"@types/node": "^24.0.14",
+		"husky": "^9.1.7",
 		"typescript": "^5.8.3"
 	}
 }

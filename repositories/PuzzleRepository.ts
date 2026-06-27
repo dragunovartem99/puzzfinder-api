@@ -31,10 +31,7 @@ export class PuzzleRepository {
 		for (const key of rangeFilters) {
 			const filter = options.filters?.[key];
 			if (!filter) continue;
-			if (filter.equals !== undefined) {
-				conditions.push(`${key} = ?`);
-				params.push(filter.equals);
-			} else {
+			if (filter.equals === undefined) {
 				if (filter.min !== undefined) {
 					conditions.push(`${key} >= ?`);
 					params.push(filter.min);
@@ -43,6 +40,9 @@ export class PuzzleRepository {
 					conditions.push(`${key} <= ?`);
 					params.push(filter.max);
 				}
+			} else {
+				conditions.push(`${key} = ?`);
+				params.push(filter.equals);
 			}
 		}
 
@@ -53,7 +53,7 @@ export class PuzzleRepository {
 			}
 		}
 
-		const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+		const where = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
 		const validSortFields: SortField[] = [
 			"rating",
