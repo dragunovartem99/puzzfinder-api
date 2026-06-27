@@ -23,7 +23,7 @@ export class PuzzleService {
 		return result;
 	}
 
-	async getPuzzleById(id: string): Promise<Puzzle | null> {
+	getPuzzleById(id: string): Promise<Puzzle | null> {
 		return this.#repository.getPuzzleById(id);
 	}
 }

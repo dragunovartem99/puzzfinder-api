@@ -8,6 +8,6 @@ export function decodeThemes(theme_mask: bigint): PuzzleTheme[] {
 export function encodeThemes(themes: string[]): bigint {
 	return themes.reduce((acc, theme) => {
 		const bit = THEMES.indexOf(theme as PuzzleTheme);
-		return bit !== -1 ? acc | (1n << BigInt(bit)) : acc;
+		return bit === -1 ? acc : acc | (1n << BigInt(bit));
 	}, 0n);
 }
