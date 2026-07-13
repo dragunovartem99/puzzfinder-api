@@ -1,0 +1,273 @@
+openapi: 3.1.0
+info:
+    title: puzzfinder-api
+    description: Search API for the Lichess puzzle database.
+    version: 1.0.0
+servers:
+    - url: https://puzzfinder.99x.space
+paths:
+    /api/puzzles/search:
+        post:
+            operationId: searchPuzzles
+            summary: Search puzzles by filters, sort order and pagination
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/PuzzleSearchOptions"
+            responses:
+                "200":
+                    description: Paginated list of matching puzzles
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/PaginatedPuzzles"
+                "400":
+                    description: Request body failed validation
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+    /api/puzzles/{id}:
+        get:
+            operationId: getPuzzleById
+            summary: Get a single puzzle by its id
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+                      pattern: "^[A-Za-z0-9]{1,16}$"
+            responses:
+                "200":
+                    description: The puzzle
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Puzzle"
+                "404":
+                    description: No puzzle with this id
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+components:
+    schemas:
+        NumberRange:
+            type: object
+            additionalProperties: false
+            properties:
+                min:
+                    type: number
+                max:
+                    type: number
+                equals:
+                    type: number
+        SortField:
+            type: string
+            enum:
+                - rating
+                - movesNumber
+                - popularity
+                - nbPlays
+                - puzzleId
+        PuzzleTheme:
+            type: string
+            enum:
+                - advancedPawn
+                - advantage
+                - anastasiaMate
+                - arabianMate
+                - attackingF2F7
+                - attraction
+                - backRankMate
+                - balestraMate
+                - blindSwineMate
+                - bishopEndgame
+                - bodenMate
+                - castling
+                - capturingDefender
+                - cornerMate
+                - crushing
+                - discoveredCheck
+                - doubleBishopMate
+                - dovetailMate
+                - equality
+                - kingsideAttack
+                - clearance
+                - defensiveMove
+                - deflection
+                - discoveredAttack
+                - doubleCheck
+                - endgame
+                - enPassant
+                - epauletteMate
+                - exposedKing
+                - fork
+                - hangingPiece
+                - hookMate
+                - interference
+                - intermezzo
+                - killBoxMate
+                - pillsburysMate
+                - morphysMate
+                - swallowstailMate
+                - triangleMate
+                - vukovicMate
+                - knightEndgame
+                - long
+                - master
+                - masterVsMaster
+                - mate
+                - mateIn1
+                - mateIn2
+                - mateIn3
+                - mateIn4
+                - mateIn5
+                - middlegame
+                - oneMove
+                - opening
+                - operaMate
+                - pawnEndgame
+                - pin
+                - promotion
+                - queenEndgame
+                - queenRookEndgame
+                - queensideAttack
+                - quietMove
+                - rookEndgame
+                - sacrifice
+                - short
+                - skewer
+                - smotheredMate
+                - superGM
+                - trappedPiece
+                - underPromotion
+                - veryLong
+                - xRayAttack
+                - zugzwang
+        PuzzleFilters:
+            type: object
+            additionalProperties: false
+            properties:
+                rating:
+                    $ref: "#/components/schemas/NumberRange"
+                movesNumber:
+                    $ref: "#/components/schemas/NumberRange"
+                popularity:
+                    $ref: "#/components/schemas/NumberRange"
+                nbPlays:
+                    $ref: "#/components/schemas/NumberRange"
+                themes:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/PuzzleTheme"
+        PuzzleSearchOptions:
+            type: object
+            additionalProperties: false
+            properties:
+                filters:
+                    $ref: "#/components/schemas/PuzzleFilters"
+                sort:
+                    type: object
+                    additionalProperties: false
+                    required:
+                        - field
+                        - order
+                    properties:
+                        field:
+                            $ref: "#/components/schemas/SortField"
+                        order:
+                            type: string
+                            enum:
+                                - asc
+                                - desc
+                pagination:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                        page:
+                            type: integer
+                            minimum: 1
+                            default: 1
+                        limit:
+                            type: integer
+                            minimum: 1
+                            maximum: 100
+                            default: 10
+        Puzzle:
+            type: object
+            required:
+                - puzzleId
+                - fen
+                - moves
+                - movesNumber
+                - rating
+                - ratingDeviation
+                - popularity
+                - nbPlays
+                - gameUrl
+                - themes
+            properties:
+                puzzleId:
+                    type: string
+                fen:
+                    type: string
+                moves:
+                    description: Solution moves in UCI notation, space-separated
+                    type: string
+                movesNumber:
+                    type: integer
+                rating:
+                    type: integer
+                ratingDeviation:
+                    type: integer
+                popularity:
+                    type: integer
+                nbPlays:
+                    type: integer
+                gameUrl:
+                    type: string
+                openingTags:
+                    type:
+                        - string
+                        - "null"
+                themes:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/PuzzleTheme"
+        PaginatedPuzzles:
+            type: object
+            required:
+                - data
+                - pagination
+            properties:
+                data:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/Puzzle"
+                pagination:
+                    type: object
+                    required:
+                        - page
+                        - limit
+                        - total
+                        - totalPages
+                    properties:
+                        page:
+                            type: integer
+                        limit:
+                            type: integer
+                        total:
+                            type: integer
+                        totalPages:
+                            type: integer
+        Error:
+            type: object
+            required:
+                - error
+            properties:
+                error:
+                    type: string

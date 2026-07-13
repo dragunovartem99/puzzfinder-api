@@ -28,21 +28,23 @@
 		"lint:check": "oxlint",
 		"prepare": "husky || true",
 		"start": "node index.ts",
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"test": "node --test",
+		"types:check": "tsc",
+		"types:generate": "openapi-typescript openapi.yaml -o types/api.d.ts"
 	},
 	"dependencies": {
 		"@duckdb/node-api": "^1.5.0-r.1",
-		"cors": "^2.8.5",
-		"express": "^5.2.1"
+		"@fastify/cors": "^11.3.0",
+		"fastify": "^5.10.0",
+		"yaml": "^2.9.0"
 	},
 	"devDependencies": {
 		"@dragunovartem99/flow": "^0.1.1",
 		"@dragunovartem99/oxfmt-config": "^2.1.0",
 		"@dragunovartem99/oxlint-config": "^2.0.0",
-		"@types/cors": "^2.8.19",
-		"@types/express": "^5.0.3",
 		"@types/node": "^24.0.14",
 		"husky": "^9.1.7",
+		"openapi-typescript": "^7.13.0",
 		"typescript": "^5.8.3"
 	}
 }

@@ -1,4 +1,4 @@
-import type { DuckDBConnection } from "@duckdb/node-api";
+import type { DuckDBConnection, DuckDBValue } from "@duckdb/node-api";
 
 export type PaginationOptions = {
 	page: number;
@@ -27,10 +27,11 @@ const MAX_LIMIT = 100;
 export async function paginateQuery<T>(
 	conn: DuckDBConnection,
 	sql: string,
-	params: unknown[],
-	options?: PaginationOptions
+	params: DuckDBValue[],
+	options?: Partial<PaginationOptions>
 ): Promise<PaginatedResult<T>> {
-	const { page, limit: rawLimit } = { ...DEFAULT_PAGINATION, ...options };
+	const page = options?.page ?? DEFAULT_PAGINATION.page;
+	const rawLimit = options?.limit ?? DEFAULT_PAGINATION.limit;
 	const limit = Math.min(rawLimit, MAX_LIMIT);
 	const offset = (page - 1) * limit;
 

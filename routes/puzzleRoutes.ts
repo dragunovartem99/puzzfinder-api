@@ -1,18 +1,20 @@
-import { Router } from "express";
+import type { FastifyInstance } from "fastify";
 
-import { Cache } from "../cache/index.ts";
 import { PuzzleController } from "../controllers/PuzzleController.ts";
-import { PuzzleRepository } from "../repositories/PuzzleRepository.ts";
-import { PuzzleService } from "../services/PuzzleService.ts";
+import type { PuzzleSearchOptions } from "../models/PuzzleFilter.ts";
+import { bodySchema, paramsSchema } from "../schemas/openapi.ts";
 
-const router = Router();
-
-const cache = new Cache();
-const puzzleRepository = new PuzzleRepository();
-const puzzleService = new PuzzleService(puzzleRepository);
-const puzzleController = new PuzzleController(puzzleService, cache);
-
-router.post("/puzzles/search", puzzleController.searchPuzzles.bind(puzzleController));
-router.get("/puzzles/:id", puzzleController.getPuzzleById.bind(puzzleController));
-
-export default router;
+export function puzzleRoutes(controller: PuzzleController) {
+	return function routes(app: FastifyInstance) {
+		app.post<{ Body: PuzzleSearchOptions }>(
+			"/puzzles/search",
+			{ schema: { body: bodySchema("/api/puzzles/search", "post") } },
+			controller.searchPuzzles.bind(controller)
+		);
+		app.get<{ Params: { id: string } }>(
+			"/puzzles/:id",
+			{ schema: { params: paramsSchema("/api/puzzles/{id}", "get") } },
+			controller.getPuzzleById.bind(controller)
+		);
+	};
+}

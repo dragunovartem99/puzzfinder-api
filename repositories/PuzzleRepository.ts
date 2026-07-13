@@ -1,31 +1,47 @@
-import { getDatabaseConnection } from "../config/database.ts";
+import type { DuckDBConnection, DuckDBValue } from "@duckdb/node-api";
+
 import type { Puzzle, DatabasePuzzle, PaginatedPuzzles } from "../models/Puzzle.ts";
-import type { PuzzleSearchOptions, SortField } from "../models/PuzzleFilter.ts";
+import type { PuzzleSearchOptions } from "../models/PuzzleFilter.ts";
+import { componentEnum } from "../schemas/openapi.ts";
 import { paginateQuery } from "../utils/pagination.ts";
 import { decodeThemes, encodeThemes } from "../utils/themes.ts";
+
+// The contract is the single source of truth for sortable fields.
+const SORT_FIELDS = componentEnum("SortField");
 
 function toPublic({ theme_mask, ...rest }: DatabasePuzzle): Puzzle {
 	return { ...rest, themes: decodeThemes(theme_mask) };
 }
 
 export class PuzzleRepository {
+	#conn: DuckDBConnection;
+
+	constructor(conn: DuckDBConnection) {
+		this.#conn = conn;
+	}
+
 	public async searchPuzzles(options: PuzzleSearchOptions): Promise<PaginatedPuzzles> {
-		const conn = await getDatabaseConnection();
 		const { sql, params } = this.buildQuery(options);
-		const result = await paginateQuery<DatabasePuzzle>(conn, sql, params, options.pagination);
+		const result = await paginateQuery<DatabasePuzzle>(
+			this.#conn,
+			sql,
+			params,
+			options.pagination
+		);
 		return { ...result, data: result.data.map(toPublic) };
 	}
 
 	public async getPuzzleById(id: string): Promise<Puzzle | null> {
-		const conn = await getDatabaseConnection();
-		const result = await conn.runAndReadAll("SELECT * FROM puzzles WHERE puzzleId = ?", [id]);
+		const result = await this.#conn.runAndReadAll("SELECT * FROM puzzles WHERE puzzleId = ?", [
+			id,
+		]);
 		const rows = result.getRowObjects() as DatabasePuzzle[];
 		return rows[0] ? toPublic(rows[0]) : null;
 	}
 
-	private buildQuery(options: PuzzleSearchOptions): { sql: string; params: unknown[] } {
+	private buildQuery(options: PuzzleSearchOptions): { sql: string; params: DuckDBValue[] } {
 		const conditions: string[] = [];
-		const params: unknown[] = [];
+		const params: DuckDBValue[] = [];
 
 		const rangeFilters = ["rating", "movesNumber", "popularity", "nbPlays"] as const;
 		for (const key of rangeFilters) {
@@ -55,16 +71,9 @@ export class PuzzleRepository {
 
 		const where = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
-		const validSortFields: SortField[] = [
-			"rating",
-			"movesNumber",
-			"popularity",
-			"nbPlays",
-			"puzzleId",
-		];
 		const sort = options.sort;
 		const orderBy =
-			sort?.field && validSortFields.includes(sort.field)
+			sort?.field && SORT_FIELDS.includes(sort.field)
 				? `ORDER BY ${sort.field} ${sort.order === "desc" ? "DESC" : "ASC"}`
 				: "";
 

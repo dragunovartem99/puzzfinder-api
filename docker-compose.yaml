@@ -4,6 +4,11 @@ services:
         image: puzzfinder-api
         build: .
         env_file: .env
+        environment:
+            DB_PATH: /app/puzzfinder.db
+            CACHE_DB_PATH: /app/cache.db
+            PORT: 50000
+            ALLOWED_ORIGIN: "*"
         ports:
             - "50000:50000"
         volumes:

@@ -1,28 +1,7 @@
-import type { PuzzleTheme } from "./Theme.ts";
+import type { components } from "../types/api.d.ts";
 
-export type BasePuzzle = {
-	puzzleId: string;
-	fen: string;
-	moves: string;
-	movesNumber: number;
-	rating: number;
-	ratingDeviation: number;
-	popularity: number;
-	nbPlays: number;
-	gameUrl: string;
-	openingTags?: string;
-};
+export type Puzzle = components["schemas"]["Puzzle"];
+export type PaginatedPuzzles = components["schemas"]["PaginatedPuzzles"];
 
-export type DatabasePuzzle = BasePuzzle & { theme_mask: bigint };
-
-export type Puzzle = BasePuzzle & { themes: PuzzleTheme[] };
-
-export type PaginatedPuzzles = {
-	data: Puzzle[];
-	pagination: {
-		page: number;
-		limit: number;
-		total: number;
-		totalPages: number;
-	};
-};
+// Internal storage shape: themes live in a bitmask column, never on the wire.
+export type DatabasePuzzle = Omit<Puzzle, "themes"> & { theme_mask: bigint };

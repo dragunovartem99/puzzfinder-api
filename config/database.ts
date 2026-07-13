@@ -1,10 +1,20 @@
 import { DuckDBInstance } from "@duckdb/node-api";
+import type { DuckDBConnection } from "@duckdb/node-api";
 
-let instance: DuckDBInstance | null = null;
+export type Database = {
+	connection: DuckDBConnection;
+	close: () => void;
+};
 
-export async function getDatabaseConnection() {
-	if (!instance) {
-		instance = await DuckDBInstance.create("/app/puzzfinder.db");
-	}
-	return instance.connect();
+export async function openDatabase(path: string): Promise<Database> {
+	const instance = await DuckDBInstance.create(path);
+	const connection = await instance.connect();
+
+	return {
+		connection,
+		close() {
+			connection.closeSync();
+			instance.closeSync();
+		},
+	};
 }
