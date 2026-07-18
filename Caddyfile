@@ -1,3 +1,3 @@
-puzzfinder.99x.space {
+puzzfinder.dragunov.dev {
     reverse_proxy localhost:50000
 }
