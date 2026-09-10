@@ -132,11 +132,13 @@ export interface components {
 		};
 		PuzzleSearchOptions: {
 			filters?: components["schemas"]["PuzzleFilters"];
+			/** @description Ties are broken by puzzleId. Defaults to puzzleId ascending. */
 			sort?: {
 				field: components["schemas"]["SortField"];
 				/** @enum {string} */
 				order: "asc" | "desc";
 			};
+			/** @description Only the first 10000 results of a search are reachable (page * limit <= 10000). */
 			pagination?: {
 				/** @default 1 */
 				page: number;
@@ -164,6 +166,7 @@ export interface components {
 				page: number;
 				limit: number;
 				total: number;
+				/** @description Reachable pages, capped by the 10000-result window; total is not capped */
 				totalPages: number;
 			};
 		};
@@ -201,8 +204,17 @@ export interface operations {
 					"application/json": components["schemas"]["PaginatedPuzzles"];
 				};
 			};
-			/** @description Request body failed validation */
+			/** @description Request body failed validation, or the page lies beyond the first 10000 results */
 			400: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["Error"];
+				};
+			};
+			/** @description Rate limit exceeded */
+			429: {
 				headers: {
 					[name: string]: unknown;
 				};
@@ -234,6 +246,15 @@ export interface operations {
 			};
 			/** @description No puzzle with this id */
 			404: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["Error"];
+				};
+			};
+			/** @description Rate limit exceeded */
+			429: {
 				headers: {
 					[name: string]: unknown;
 				};

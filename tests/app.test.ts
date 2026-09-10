@@ -3,7 +3,7 @@ import { after, test } from "node:test";
 
 import { createTestApp } from "./helpers.ts";
 
-const { app, cacheDb } = await createTestApp();
+const { app } = await createTestApp();
 after(() => app.close());
 
 test("searches puzzles and reports pagination", async () => {
@@ -33,12 +33,15 @@ test("fills pagination defaults from the contract", async () => {
 	assert.equal(response.json().pagination.page, 2);
 });
 
-test("caches search results", async () => {
-	const payload = { filters: { rating: { min: 1600 } } };
-	await app.inject({ method: "POST", url: "/api/puzzles/search", payload });
+test("rejects pages beyond the result window", async () => {
+	const response = await app.inject({
+		method: "POST",
+		url: "/api/puzzles/search",
+		payload: { pagination: { page: 101, limit: 100 } },
+	});
 
-	const cached = await cacheDb.runAndReadAll("SELECT COUNT(*) AS total FROM search_cache");
-	assert.equal((cached.getRowObjects()[0] as { total: bigint }).total > 0n, true);
+	assert.equal(response.statusCode, 400);
+	assert.match(response.json().error, /first 10000 results/u);
 });
 
 test("rejects a malformed body", async () => {
@@ -52,6 +55,17 @@ test("rejects a malformed body", async () => {
 	assert.match(response.json().error, /must be number/u);
 });
 
+test("rejects invalid JSON with 400", async () => {
+	const response = await app.inject({
+		method: "POST",
+		url: "/api/puzzles/search",
+		headers: { "content-type": "application/json" },
+		payload: "{not json",
+	});
+
+	assert.equal(response.statusCode, 400);
+});
+
 test("rejects an unknown theme", async () => {
 	const response = await app.inject({
 		method: "POST",
@@ -62,11 +76,12 @@ test("rejects an unknown theme", async () => {
 	assert.equal(response.statusCode, 400);
 });
 
-test("returns a puzzle by id", async () => {
+test("returns a cacheable puzzle by id", async () => {
 	const response = await app.inject({ method: "GET", url: "/api/puzzles/aaaaa" });
 
 	assert.equal(response.statusCode, 200);
 	assert.equal(response.json().puzzleId, "aaaaa");
+	assert.match(response.headers["cache-control"] as string, /max-age=/u);
 });
 
 test("returns 404 for an unknown id", async () => {
@@ -74,4 +89,16 @@ test("returns 404 for an unknown id", async () => {
 
 	assert.equal(response.statusCode, 404);
 	assert.deepEqual(response.json(), { error: "Puzzle zzzzz not found" });
+	assert.equal(response.headers["cache-control"], undefined);
+});
+
+test("rate limits a client with 429", async () => {
+	const { app: limited } = await createTestApp({ rateLimit: 1 });
+	after(() => limited.close());
+
+	await limited.inject({ method: "GET", url: "/api/puzzles/aaaaa" });
+	const response = await limited.inject({ method: "GET", url: "/api/puzzles/aaaaa" });
+
+	assert.equal(response.statusCode, 429);
+	assert.match(response.json().error, /rate limit/iu);
 });

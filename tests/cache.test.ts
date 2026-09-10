@@ -1,25 +1,54 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { setTimeout as sleep } from "node:timers/promises";
 
-import { Cache } from "../cache/index.ts";
-import { createCacheConnection } from "./helpers.ts";
+import { QueryCache } from "../cache/index.ts";
 
-test("keeps cached results while the DB version is unchanged", async () => {
-	const cache = new Cache(await createCacheConnection());
-	await cache.init("v1");
-	await cache.set("key", { total: 1 });
+test("computes once and serves repeats from the cache", async () => {
+	const cache = new QueryCache<number>({ max: 10 });
+	let calls = 0;
+	const compute = () => Promise.resolve(++calls);
 
-	await cache.init("v1");
-
-	assert.deepEqual(await cache.get("key"), { total: 1 });
+	assert.equal(await cache.getOrCompute("key", compute), 1);
+	assert.equal(await cache.getOrCompute("key", compute), 1);
+	assert.equal(calls, 1);
 });
 
-test("drops cached results when the DB version changes", async () => {
-	const cache = new Cache(await createCacheConnection());
-	await cache.init("v1");
-	await cache.set("key", { total: 1 });
+test("shares one computation between concurrent callers", async () => {
+	const cache = new QueryCache<number>({ max: 10 });
+	let calls = 0;
+	const compute = async () => {
+		calls++;
+		await sleep(10);
+		return 42;
+	};
 
-	await cache.init("v2");
+	const results = await Promise.all([
+		cache.getOrCompute("key", compute),
+		cache.getOrCompute("key", compute),
+	]);
 
-	assert.equal(await cache.get("key"), null);
+	assert.deepEqual(results, [42, 42]);
+	assert.equal(calls, 1);
+});
+
+test("does not cache failures", async () => {
+	const cache = new QueryCache<number>({ max: 10 });
+
+	await assert.rejects(cache.getOrCompute("key", () => Promise.reject(new Error("boom"))));
+
+	assert.equal(await cache.getOrCompute("key", () => Promise.resolve(7)), 7);
+});
+
+test("evicts the least recently used entry beyond max", async () => {
+	const cache = new QueryCache<number>({ max: 2 });
+	let calls = 0;
+	const compute = () => Promise.resolve(++calls);
+
+	await cache.getOrCompute("a", compute);
+	await cache.getOrCompute("b", compute);
+	await cache.getOrCompute("c", compute);
+	await cache.getOrCompute("a", compute);
+
+	assert.equal(calls, 4);
 });

@@ -1,20 +1,17 @@
-import type { DuckDBConnection, DuckDBValue } from "@duckdb/node-api";
+import { BadRequestError } from "../errors/BadRequestError.ts";
 
 export type PaginationOptions = {
 	page: number;
 	limit: number;
 };
 
+type Pagination = PaginationOptions & { offset: number };
+
 type PaginationMeta = {
 	page: number;
 	limit: number;
 	total: number;
 	totalPages: number;
-};
-
-type PaginatedResult<T> = {
-	data: T[];
-	pagination: PaginationMeta;
 };
 
 const DEFAULT_PAGINATION: PaginationOptions = {
@@ -24,27 +21,25 @@ const DEFAULT_PAGINATION: PaginationOptions = {
 
 const MAX_LIMIT = 100;
 
-export async function paginateQuery<T>(
-	conn: DuckDBConnection,
-	sql: string,
-	params: DuckDBValue[],
-	options?: Partial<PaginationOptions>
-): Promise<PaginatedResult<T>> {
+// Deep OFFSETs make DuckDB sort and skip millions of rows (seconds per request),
+// so only the first MAX_RESULT_WINDOW results of a search are reachable.
+export const MAX_RESULT_WINDOW = 10_000;
+
+export function resolvePagination(options?: Partial<PaginationOptions>): Pagination {
 	const page = options?.page ?? DEFAULT_PAGINATION.page;
-	const rawLimit = options?.limit ?? DEFAULT_PAGINATION.limit;
-	const limit = Math.min(rawLimit, MAX_LIMIT);
+	const limit = Math.min(options?.limit ?? DEFAULT_PAGINATION.limit, MAX_LIMIT);
 	const offset = (page - 1) * limit;
 
-	const [dataResult, countResult] = await Promise.all([
-		conn.runAndReadAll(`${sql} LIMIT ? OFFSET ?`, [...params, limit, offset]),
-		conn.runAndReadAll(`SELECT COUNT(*) as total FROM (${sql}) t`, params),
-	]);
+	if (offset + limit > MAX_RESULT_WINDOW) {
+		throw new BadRequestError(
+			`Only the first ${MAX_RESULT_WINDOW} results are reachable; narrow the filters`
+		);
+	}
 
-	const data = dataResult.getRowObjects() as T[];
-	const total = Number((countResult.getRowObjects()[0] as { total: bigint }).total);
+	return { page, limit, offset };
+}
 
-	return {
-		data,
-		pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
-	};
+export function paginationMeta({ page, limit }: Pagination, total: number): PaginationMeta {
+	const reachable = Math.min(total, MAX_RESULT_WINDOW);
+	return { page, limit, total, totalPages: Math.ceil(reachable / limit) };
 }

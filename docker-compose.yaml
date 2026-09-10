@@ -6,11 +6,12 @@ services:
         env_file: .env
         environment:
             DB_PATH: /app/puzzfinder.db
-            CACHE_DB_PATH: /app/cache.db
             PORT: 50000
             ALLOWED_ORIGIN: "*"
+        # Loopback only: the API is reached through Caddy. Docker bypasses
+        # host firewalls, so a bare "50000:50000" would expose it publicly.
         ports:
-            - "50000:50000"
+            - "127.0.0.1:50000:50000"
         volumes:
-            - ${PUZZLES_DB}:/app/puzzfinder.db
+            - ${PUZZLES_DB}:/app/puzzfinder.db:ro
         restart: unless-stopped

@@ -1,5 +1,4 @@
 import { DuckDBInstance } from "@duckdb/node-api";
-import type { DuckDBConnection } from "@duckdb/node-api";
 
 import { buildApp } from "../app.ts";
 import type { PuzzleTheme } from "../models/Theme.ts";
@@ -39,10 +38,20 @@ export const SEED_PUZZLES: SeedPuzzle[] = [
 		nbPlays: 300,
 		themes: ["mateIn2", "endgame"],
 	},
+	// Shares bbbbb's rating to exercise the puzzleId tie-breaker.
+	{
+		puzzleId: "ddddd",
+		rating: 1600,
+		movesNumber: 3,
+		popularity: 60,
+		nbPlays: 400,
+		themes: ["mateIn2"],
+	},
 ];
 
-export async function createPuzzleConnection(): Promise<DuckDBConnection> {
-	const conn = await (await DuckDBInstance.create(":memory:")).connect();
+export async function createPuzzleDatabase(): Promise<DuckDBInstance> {
+	const db = await DuckDBInstance.create(":memory:");
+	const conn = await db.connect();
 	await conn.run(
 		`CREATE TABLE puzzles (
 			puzzleId VARCHAR PRIMARY KEY,
@@ -65,22 +74,17 @@ export async function createPuzzleConnection(): Promise<DuckDBConnection> {
 			[puzzle.puzzleId, puzzle.movesNumber, puzzle.rating, puzzle.popularity, puzzle.nbPlays]
 		);
 	}
-	return conn;
+	conn.closeSync();
+	return db;
 }
 
-export async function createCacheConnection(): Promise<DuckDBConnection> {
-	return await (await DuckDBInstance.create(":memory:")).connect();
-}
-
-export async function createTestApp() {
-	const db = await createPuzzleConnection();
-	const cacheDb = await createCacheConnection();
+export async function createTestApp(options: { rateLimit?: number } = {}) {
+	const db = await createPuzzleDatabase();
 	const app = await buildApp({
 		db,
-		cacheDb,
-		dbVersion: "test",
 		allowedOrigin: "*",
 		logger: false,
+		rateLimit: options.rateLimit ?? 1000,
 	});
-	return { app, db, cacheDb };
+	return { app, db };
 }

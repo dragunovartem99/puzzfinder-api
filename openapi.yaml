@@ -4,7 +4,7 @@ info:
     description: Search API for the Lichess puzzle database.
     version: 1.0.0
 servers:
-    - url: https://puzzfinder.99x.space
+    - url: https://puzzfinder.dragunov.dev
 paths:
     /api/puzzles/search:
         post:
@@ -24,7 +24,13 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/PaginatedPuzzles"
                 "400":
-                    description: Request body failed validation
+                    description: Request body failed validation, or the page lies beyond the first 10000 results
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "429":
+                    description: Rate limit exceeded
                     content:
                         application/json:
                             schema:
@@ -47,6 +53,12 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Puzzle"
+                "429":
+                    description: Rate limit exceeded
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
                 "404":
                     description: No puzzle with this id
                     content:
@@ -171,6 +183,7 @@ components:
                 filters:
                     $ref: "#/components/schemas/PuzzleFilters"
                 sort:
+                    description: Ties are broken by puzzleId. Defaults to puzzleId ascending.
                     type: object
                     additionalProperties: false
                     required:
@@ -185,6 +198,7 @@ components:
                                 - asc
                                 - desc
                 pagination:
+                    description: Only the first 10000 results of a search are reachable (page * limit <= 10000).
                     type: object
                     additionalProperties: false
                     properties:
@@ -263,6 +277,7 @@ components:
                         total:
                             type: integer
                         totalPages:
+                            description: Reachable pages, capped by the 10000-result window; total is not capped
                             type: integer
         Error:
             type: object

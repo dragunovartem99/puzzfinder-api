@@ -1,28 +1,28 @@
-import { stat } from "node:fs/promises";
-
 import { DuckDBInstance } from "@duckdb/node-api";
 import type { DuckDBConnection } from "@duckdb/node-api";
 
-export type Database = {
-	connection: DuckDBConnection;
-	close: () => void;
+type DatabaseOptions = {
+	memoryLimit?: string;
+	threads?: string;
 };
 
-// Changes whenever the DB file is rebuilt; read before opening, since DuckDB may touch the file.
-export async function getDatabaseVersion(path: string): Promise<string> {
-	const { size, mtimeMs } = await stat(path);
-	return `${size}-${mtimeMs}`;
+export function openDatabase(path: string, options: DatabaseOptions = {}): Promise<DuckDBInstance> {
+	const config: Record<string, string> = { access_mode: "READ_ONLY" };
+	if (options.memoryLimit) config.memory_limit = options.memoryLimit;
+	if (options.threads) config.threads = options.threads;
+	return DuckDBInstance.create(path, config);
 }
 
-export async function openDatabase(path: string): Promise<Database> {
-	const instance = await DuckDBInstance.create(path);
-	const connection = await instance.connect();
-
-	return {
-		connection,
-		close() {
-			connection.closeSync();
-			instance.closeSync();
-		},
-	};
+// A DuckDB connection runs one query at a time, so each query gets its own
+// connection; they are cheap and let concurrent requests run in parallel.
+export async function withConnection<T>(
+	instance: DuckDBInstance,
+	fn: (conn: DuckDBConnection) => Promise<T>
+): Promise<T> {
+	const conn = await instance.connect();
+	try {
+		return await fn(conn);
+	} finally {
+		conn.closeSync();
+	}
 }

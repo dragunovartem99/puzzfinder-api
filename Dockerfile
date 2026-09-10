@@ -7,4 +7,7 @@ RUN npm ci --omit=dev
 
 COPY . .
 
-CMD ["npm", "start"]
+USER node
+
+# Run node directly (not via npm) so SIGTERM reaches the graceful shutdown handler.
+CMD ["node", "index.ts"]

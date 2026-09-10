@@ -1,23 +1,24 @@
 import { buildApp } from "./app.ts";
-import { getDatabaseVersion, openDatabase } from "./config/database.ts";
-import { ALLOWED_ORIGIN, CACHE_DB_PATH, DB_PATH, PORT } from "./config/env.ts";
+import { openDatabase } from "./config/database.ts";
+import {
+	ALLOWED_ORIGIN,
+	DB_PATH,
+	DUCKDB_MEMORY_LIMIT,
+	DUCKDB_THREADS,
+	PORT,
+} from "./config/env.ts";
 
-const dbVersion = await getDatabaseVersion(DB_PATH);
-const db = await openDatabase(DB_PATH);
-const cacheDb = await openDatabase(CACHE_DB_PATH);
-
-const app = await buildApp({
-	db: db.connection,
-	cacheDb: cacheDb.connection,
-	dbVersion,
-	allowedOrigin: ALLOWED_ORIGIN,
+const db = await openDatabase(DB_PATH, {
+	memoryLimit: DUCKDB_MEMORY_LIMIT,
+	threads: DUCKDB_THREADS,
 });
+
+const app = await buildApp({ db, allowedOrigin: ALLOWED_ORIGIN });
 
 async function shutdown(signal: string) {
 	app.log.info(`Received ${signal}, shutting down`);
 	await app.close();
-	db.close();
-	cacheDb.close();
+	db.closeSync();
 	process.exit(0);
 }
 
