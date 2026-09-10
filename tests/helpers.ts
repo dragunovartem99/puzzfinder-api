@@ -75,6 +75,12 @@ export async function createCacheConnection(): Promise<DuckDBConnection> {
 export async function createTestApp() {
 	const db = await createPuzzleConnection();
 	const cacheDb = await createCacheConnection();
-	const app = await buildApp({ db, cacheDb, allowedOrigin: "*", logger: false });
+	const app = await buildApp({
+		db,
+		cacheDb,
+		dbVersion: "test",
+		allowedOrigin: "*",
+		logger: false,
+	});
 	return { app, db, cacheDb };
 }

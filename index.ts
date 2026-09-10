@@ -1,13 +1,15 @@
 import { buildApp } from "./app.ts";
-import { openDatabase } from "./config/database.ts";
+import { getDatabaseVersion, openDatabase } from "./config/database.ts";
 import { ALLOWED_ORIGIN, CACHE_DB_PATH, DB_PATH, PORT } from "./config/env.ts";
 
+const dbVersion = await getDatabaseVersion(DB_PATH);
 const db = await openDatabase(DB_PATH);
 const cacheDb = await openDatabase(CACHE_DB_PATH);
 
 const app = await buildApp({
 	db: db.connection,
 	cacheDb: cacheDb.connection,
+	dbVersion,
 	allowedOrigin: ALLOWED_ORIGIN,
 });
 

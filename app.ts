@@ -13,6 +13,7 @@ import { PuzzleService } from "./services/PuzzleService.ts";
 type AppOptions = {
 	db: DuckDBConnection;
 	cacheDb: DuckDBConnection;
+	dbVersion: string;
 	allowedOrigin: string;
 	logger?: boolean;
 };
@@ -37,7 +38,7 @@ export async function buildApp(options: AppOptions) {
 	});
 
 	const cache = new Cache(options.cacheDb);
-	await cache.init();
+	await cache.init(options.dbVersion);
 	const repository = new PuzzleRepository(options.db);
 	const service = new PuzzleService(repository, cache);
 	const controller = new PuzzleController(service);
