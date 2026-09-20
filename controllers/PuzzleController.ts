@@ -2,7 +2,7 @@ import type { FastifyReply, FastifyRequest } from "fastify";
 
 import { NotFoundError } from "../errors/NotFoundError.ts";
 import type { PuzzleSearchOptions } from "../models/PuzzleFilter.ts";
-import { PuzzleService } from "../services/PuzzleService.ts";
+import type { PuzzleService } from "../services/PuzzleService.ts";
 
 // Puzzles only change when the DB is rebuilt (at most daily).
 const PUZZLE_CACHE_CONTROL = "public, max-age=86400";

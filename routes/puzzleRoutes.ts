@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
 
-import { PuzzleController } from "../controllers/PuzzleController.ts";
+import type { PuzzleController } from "../controllers/PuzzleController.ts";
 import type { PuzzleSearchOptions } from "../models/PuzzleFilter.ts";
 import { bodySchema, paramsSchema } from "../schemas/openapi.ts";
 

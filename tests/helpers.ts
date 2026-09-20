@@ -67,13 +67,21 @@ export async function createPuzzleDatabase(): Promise<DuckDBInstance> {
 			theme_mask HUGEINT
 		)`
 	);
-	for (const puzzle of SEED_PUZZLES) {
-		const mask = encodeThemes(puzzle.themes);
-		await conn.run(
-			`INSERT INTO puzzles VALUES (?, 'fen', 'e2e4 e7e5', ?, ?, 75, ?, ?, 'https://lichess.org/x', NULL, ${mask}::HUGEINT)`,
-			[puzzle.puzzleId, puzzle.movesNumber, puzzle.rating, puzzle.popularity, puzzle.nbPlays]
-		);
-	}
+	await Promise.all(
+		SEED_PUZZLES.map((puzzle) => {
+			const mask = encodeThemes(puzzle.themes);
+			return conn.run(
+				`INSERT INTO puzzles VALUES (?, 'fen', 'e2e4 e7e5', ?, ?, 75, ?, ?, 'https://lichess.org/x', NULL, ${mask}::HUGEINT)`,
+				[
+					puzzle.puzzleId,
+					puzzle.movesNumber,
+					puzzle.rating,
+					puzzle.popularity,
+					puzzle.nbPlays,
+				]
+			);
+		})
+	);
 	conn.closeSync();
 	return db;
 }

@@ -1,7 +1,7 @@
 import { QueryCache } from "../cache/index.ts";
 import type { Puzzle, PaginatedPuzzles } from "../models/Puzzle.ts";
 import type { PuzzleSearchOptions } from "../models/PuzzleFilter.ts";
-import { PuzzleRepository } from "../repositories/PuzzleRepository.ts";
+import type { PuzzleRepository } from "../repositories/PuzzleRepository.ts";
 import { paginationMeta, resolvePagination } from "../utils/pagination.ts";
 
 export type SearchCaches = {

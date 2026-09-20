@@ -43,7 +43,7 @@
 	"devDependencies": {
 		"@dragunovartem99/flow": "^0.1.1",
 		"@dragunovartem99/oxfmt-config": "^2.1.0",
-		"@dragunovartem99/oxlint-config": "^2.0.0",
+		"@dragunovartem99/oxlint-config": "^3.0.1",
 		"@types/node": "^24.0.14",
 		"husky": "^9.1.7",
 		"openapi-typescript": "^7.13.0",
