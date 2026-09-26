@@ -2,19 +2,16 @@ name: Deploy
 
 on:
     push:
-        branches: [main]
+        branches: ["main"]
+    workflow_dispatch:
 
 jobs:
-    deploy:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Deploy to VPS
-              uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
-              with:
-                  host: ${{ secrets.VPS_HOST }}
-                  username: ${{ secrets.VPS_USER }}
-                  key: ${{ secrets.VPS_SSH_KEY }}
-                  script: |
-                      cd ${{ secrets.VPS_PROJECT_PATH }}
-                      git pull
-                      ./deploy.sh
+    ci:
+        uses: ./.github/workflows/ci.yaml
+
+    pipes:
+        needs: ci
+        uses: dragunovartem99/pipes/.github/workflows/deploy-vps.yaml@v1.0.1
+        with:
+            url: https://puzzfinder.dragunov.dev
+        secrets: inherit
