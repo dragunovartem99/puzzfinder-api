@@ -17,7 +17,8 @@ npm ci
 npm run dev
 ```
 
-The API reads the DuckDB file built by [puzzfinder-db](https://github.com/dragunovartem99/puzzfinder-db).
+The API reads the DuckDB file built by [puzzfinder-db](https://github.com/dragunovartem99/puzzfinder-db),
+from a sibling checkout (see `.env.development`).
 `npm run types:generate` regenerates `types/api.d.ts` from [`openapi.yaml`](openapi.yaml). Pull
 requests run `format:check`, `types:check`, `lint:check` and `test`, and so does the pre-commit hook
 
