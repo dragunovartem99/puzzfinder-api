@@ -21,6 +21,23 @@ export interface paths {
 		patch?: never;
 		trace?: never;
 	};
+	"/api/puzzles": {
+		parameters: {
+			query?: never;
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		/** Get several puzzles by id, in the requested order */
+		get: operations["getPuzzlesByIds"];
+		put?: never;
+		post?: never;
+		delete?: never;
+		options?: never;
+		head?: never;
+		patch?: never;
+		trace?: never;
+	};
 	"/api/puzzles/{id}": {
 		parameters: {
 			query?: never;
@@ -160,6 +177,9 @@ export interface components {
 			openingTags?: string | null;
 			themes: components["schemas"]["PuzzleTheme"][];
 		};
+		Puzzles: {
+			data: components["schemas"]["Puzzle"][];
+		};
 		PaginatedPuzzles: {
 			data: components["schemas"]["Puzzle"][];
 			pagination: {
@@ -205,6 +225,47 @@ export interface operations {
 				};
 			};
 			/** @description Request body failed validation, or the page lies beyond the first 10000 results */
+			400: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["Error"];
+				};
+			};
+			/** @description Rate limit exceeded */
+			429: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["Error"];
+				};
+			};
+		};
+	};
+	getPuzzlesByIds: {
+		parameters: {
+			query: {
+				/** @description Comma-separated puzzle ids, at most 100. Unknown ids are skipped. */
+				ids: string;
+			};
+			header?: never;
+			path?: never;
+			cookie?: never;
+		};
+		requestBody?: never;
+		responses: {
+			/** @description The puzzles that exist, in the order of ids */
+			200: {
+				headers: {
+					[name: string]: unknown;
+				};
+				content: {
+					"application/json": components["schemas"]["Puzzles"];
+				};
+			};
+			/** @description Malformed or too many ids */
 			400: {
 				headers: {
 					[name: string]: unknown;
