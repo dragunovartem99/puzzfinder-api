@@ -102,3 +102,20 @@ test("rate limits a client with 429", async () => {
 	assert.equal(response.statusCode, 429);
 	assert.match(response.json().error, /rate limit/iu);
 });
+
+test("returns puzzles by ids in the requested order, skipping unknown ones", async () => {
+	const response = await app.inject({ method: "GET", url: "/api/puzzles?ids=ccccc,zzzzz,aaaaa" });
+
+	assert.equal(response.statusCode, 200);
+	assert.deepEqual(
+		response.json().data.map((puzzle: { puzzleId: string }) => puzzle.puzzleId),
+		["ccccc", "aaaaa"]
+	);
+	assert.match(response.headers["cache-control"] as string, /max-age=/u);
+});
+
+test("rejects malformed ids", async () => {
+	const response = await app.inject({ method: "GET", url: "/api/puzzles?ids=a,b;c" });
+
+	assert.equal(response.statusCode, 400);
+});

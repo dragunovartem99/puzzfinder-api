@@ -99,13 +99,20 @@ export class PuzzleRepository {
 		});
 	}
 
-	public getPuzzleById(id: string): Promise<Puzzle | null> {
+	public getPuzzlesByIds(ids: string[]): Promise<Puzzle[]> {
+		if (ids.length === 0) return Promise.resolve([]);
+		const placeholders = ids.map(() => "?").join(", ");
 		return withConnection(this.#db, async (conn) => {
-			const result = await conn.runAndReadAll("SELECT * FROM puzzles WHERE puzzleId = ?", [
-				id,
-			]);
-			const rows = result.getRowObjects() as DatabasePuzzle[];
-			return rows[0] ? toPublic(rows[0]) : null;
+			const result = await conn.runAndReadAll(
+				`SELECT * FROM puzzles WHERE puzzleId IN (${placeholders})`,
+				ids
+			);
+			return (result.getRowObjects() as DatabasePuzzle[]).map((row) => toPublic(row));
 		});
+	}
+
+	public async getPuzzleById(id: string): Promise<Puzzle | null> {
+		const [puzzle] = await this.getPuzzlesByIds([id]);
+		return puzzle ?? null;
 	}
 }

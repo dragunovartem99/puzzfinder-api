@@ -56,14 +56,22 @@ export function bodySchema(path: string, method: string): unknown {
 	return deref(body.content["application/json"].schema);
 }
 
-export function paramsSchema(path: string, method: string): unknown {
-	const parameters = (getOperation(path, method).parameters ?? []).filter((p) => p.in === "path");
+function parametersSchema(path: string, method: string, location: "path" | "query"): unknown {
+	const parameters = (getOperation(path, method).parameters ?? []).filter(
+		(p) => p.in === location
+	);
 	return {
 		type: "object",
 		required: parameters.filter((p) => p.required).map((p) => p.name),
 		properties: Object.fromEntries(parameters.map((p) => [p.name, deref(p.schema)])),
 	};
 }
+
+export const paramsSchema = (path: string, method: string) =>
+	parametersSchema(path, method, "path");
+
+export const querySchema = (path: string, method: string) =>
+	parametersSchema(path, method, "query");
 
 export function componentEnum(name: string): string[] {
 	const schemas = (apiDocument.components as JsonObject).schemas as JsonObject;

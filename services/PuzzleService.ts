@@ -53,6 +53,13 @@ export class PuzzleService {
 		return { data, pagination: paginationMeta(pagination, total) };
 	}
 
+	// Keeps the requested order and drops unknown ids.
+	async getPuzzlesByIds(ids: string[]): Promise<Puzzle[]> {
+		const found = await this.#repository.getPuzzlesByIds([...new Set(ids)]);
+		const byId = new Map(found.map((puzzle) => [puzzle.puzzleId, puzzle]));
+		return ids.flatMap((id) => byId.get(id) ?? []);
+	}
+
 	getPuzzleById(id: string): Promise<Puzzle | null> {
 		return this.#repository.getPuzzleById(id);
 	}

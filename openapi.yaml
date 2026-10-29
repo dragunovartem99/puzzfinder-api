@@ -35,6 +35,37 @@ paths:
                         application/json:
                             schema:
                                 $ref: "#/components/schemas/Error"
+    /api/puzzles:
+        get:
+            operationId: getPuzzlesByIds
+            summary: Get several puzzles by id, in the requested order
+            parameters:
+                - name: ids
+                  in: query
+                  required: true
+                  description: Comma-separated puzzle ids, at most 100. Unknown ids are skipped.
+                  schema:
+                      type: string
+                      pattern: "^[A-Za-z0-9]{1,16}(,[A-Za-z0-9]{1,16}){0,99}$"
+            responses:
+                "200":
+                    description: The puzzles that exist, in the order of ids
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Puzzles"
+                "400":
+                    description: Malformed or too many ids
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
+                "429":
+                    description: Rate limit exceeded
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Error"
     /api/puzzles/{id}:
         get:
             operationId: getPuzzleById
@@ -252,6 +283,15 @@ components:
                     type: array
                     items:
                         $ref: "#/components/schemas/PuzzleTheme"
+        Puzzles:
+            type: object
+            required:
+                - data
+            properties:
+                data:
+                    type: array
+                    items:
+                        $ref: "#/components/schemas/Puzzle"
         PaginatedPuzzles:
             type: object
             required:

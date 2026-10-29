@@ -1,6 +1,7 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 
 import { NotFoundError } from "../errors/NotFoundError.ts";
+import type { Puzzles } from "../models/Puzzle.ts";
 import type { PuzzleSearchOptions } from "../models/PuzzleFilter.ts";
 import type { PuzzleService } from "../services/PuzzleService.ts";
 
@@ -16,6 +17,15 @@ export class PuzzleController {
 
 	searchPuzzles(req: FastifyRequest<{ Body: PuzzleSearchOptions }>) {
 		return this.#puzzleService.searchPuzzles(req.body);
+	}
+
+	async getPuzzlesByIds(
+		req: FastifyRequest<{ Querystring: { ids: string } }>,
+		reply: FastifyReply
+	): Promise<Puzzles> {
+		const data = await this.#puzzleService.getPuzzlesByIds(req.query.ids.split(","));
+		reply.header("cache-control", PUZZLE_CACHE_CONTROL);
+		return { data };
 	}
 
 	async getPuzzleById(req: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
